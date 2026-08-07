@@ -160,16 +160,16 @@ export default function Diagnostico() {
 
   return (
     <main className="mx-auto max-w-[1100px] px-6 pb-24">
-      <header className="sticky top-0 z-40 -mx-6 mb-8 flex items-center justify-between border-b border-hairline bg-canvas/80 px-6 py-3 backdrop-blur">
+      <header className="sticky top-0 z-40 -mx-6 mb-8 flex items-center justify-between border-b border-hairline bg-canvas/95 px-6 py-3 backdrop-blur">
         <Link href="/" className="shrink-0 transition-opacity hover:opacity-70" title="Voltar ao início">
           <Logo className="h-7" />
         </Link>
-        <span className="text-caption text-faint">o mesmo motor do construtor</span>
+        <span className="hidden text-caption text-faint sm:block">o mesmo motor do construtor</span>
       </header>
 
       <div className="flex flex-col gap-10 lg:flex-row">
-        {/* ── entrada ──────────────────────────────────────────────── */}
-        <div className="min-w-0 flex-1 space-y-4">
+        {/* ── entrada — acompanha a rolagem do relatório no desktop ─── */}
+        <div className="min-w-0 flex-1 space-y-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-1">
           {/* print do perfil — referência visual ao lado dos campos */}
           <section className="ds-card p-4">
             <div className="flex items-start justify-between gap-4">

@@ -45,11 +45,12 @@ export function NotasPorBloco({
         const aConferir = pendentes.filter((r) => r.bloco === b).length
         return (
           <div key={b} className="ds-card p-4">
-            <div className="flex items-baseline justify-between">
-              <span className="text-label-md text-mute">{NOME_BLOCO[b]}</span>
-              <span className={`text-heading-md tabular-nums ${corDaNota(nota)}`}>{nota}</span>
-            </div>
-            <div className="mt-2 h-1 overflow-hidden rounded-full bg-elevated">
+            {/* rótulo em cima e número embaixo: nome comprido não empurra a nota */}
+            <span className="block truncate text-label-md text-mute">{NOME_BLOCO[b]}</span>
+            <span className={`mt-0.5 block text-heading-md tabular-nums ${corDaNota(nota)}`}>
+              {nota}
+            </span>
+            <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-elevated">
               <div className={`h-full rounded-full ${barraDaNota(nota)}`} style={{ width: `${nota * 10}%` }} />
             </div>
             <p className="mt-2 text-caption text-faint">

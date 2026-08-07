@@ -43,8 +43,8 @@ export default function Pagina() {
   return (
     <main className="mx-auto max-w-[1200px] px-6 pb-24">
       {/* stepper */}
-      <header className="no-print sticky top-0 z-40 -mx-6 mb-8 border-b border-hairline bg-canvas/80 px-6 py-3 backdrop-blur">
-        <nav className="flex items-center gap-1 overflow-x-auto">
+      <header className="no-print sticky top-0 z-40 -mx-6 mb-8 border-b border-hairline bg-canvas/95 px-6 py-3 backdrop-blur">
+        <nav className="ds-scroll-x flex items-center gap-1 overflow-x-auto">
           <Link
             href="/"
             className="mr-4 hidden shrink-0 transition-opacity hover:opacity-70 sm:block"
@@ -60,7 +60,11 @@ export default function Pagina() {
                 key={nome}
                 disabled={!liberado}
                 onClick={() => mudar('passo', i)}
-                className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-label-md transition-colors ${
+                ref={(el) => {
+                  // o passo ativo entra na vista sozinho — no celular a trilha rola
+                  if (el && ativo) el.scrollIntoView({ block: 'nearest', inline: 'center' })
+                }}
+                className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-label-md transition-colors ${
                   ativo
                     ? 'bg-inverse text-on-inverse'
                     : liberado

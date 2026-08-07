@@ -199,6 +199,8 @@ export function Editor({
   confirmados: ReadonlySet<string>
   alternarConfirmado: (id: string) => void
 }) {
+  const [previewAberto, setPreviewAberto] = useState(false)
+
   const bloco = (b: Bloco) => {
     const { violadas, checks } = avaliacaoDoBloco(avaliacao, b)
     return (
@@ -212,6 +214,22 @@ export function Editor({
   }
 
   const ehLocal = estado.objetivo === 'local'
+
+  const preview = (
+    <PreviewInstagram
+      rotulo="Preview — como quem chega vê"
+      foto={imagens['foto']}
+      nome={estado.nome}
+      usuario={estado.usuario}
+      bio={estado.bio}
+      link={estado.link}
+      ctaBotao={estado.ctaBotao}
+      destaques={estado.destaques.map((d, i) => ({ nome: d.nome, capa: imagens[`destaque-${i}`] }))}
+      grid={Array.from({ length: 9 }, (_, i) => imagens[`grid-${i}`])}
+      pinos={estado.fixados.map((f) => Boolean(f.titulo.trim() || f.papel))}
+      mostrarMini
+    />
+  )
 
   return (
     <div className="flex flex-col gap-8 lg:flex-row">
@@ -397,22 +415,43 @@ export function Editor({
         </Secao>
       </div>
 
-      {/* ── preview ─────────────────────────────────────────────────── */}
-      <div className="shrink-0 lg:sticky lg:top-6 lg:self-start">
-        <PreviewInstagram
-          rotulo="Preview — como quem chega vê"
-          foto={imagens['foto']}
-          nome={estado.nome}
-          usuario={estado.usuario}
-          bio={estado.bio}
-          link={estado.link}
-          ctaBotao={estado.ctaBotao}
-          destaques={estado.destaques.map((d, i) => ({ nome: d.nome, capa: imagens[`destaque-${i}`] }))}
-          grid={Array.from({ length: 9 }, (_, i) => imagens[`grid-${i}`])}
-          pinos={estado.fixados.map((f) => Boolean(f.titulo.trim() || f.papel))}
-          mostrarMini
-        />
+      {/* ── preview ──────────────────────────────────────────────────
+           Desktop: fixo ao lado do formulário. Celular: escondido atrás de
+           um botão flutuante — empilhado ele cairia no fim da página, e um
+           preview que ninguém vê não corrige nada. */}
+      <div className="hidden shrink-0 lg:sticky lg:top-6 lg:block lg:self-start">{preview}</div>
+
+      {/* o wrapper carrega o `fixed`: .shiny-cta declara position:relative fora
+          de @layer e venceria o utilitário do Tailwind */}
+      <div className="fixed bottom-5 right-5 z-40 lg:hidden">
+        <button
+          onClick={() => setPreviewAberto(true)}
+          className="shiny-cta px-5 py-3 text-label-md"
+        >
+          <span className="shiny-dots" aria-hidden="true" />
+          <span className="shiny-cta-content">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="5" y="2" width="14" height="20" rx="2.5" />
+              <path d="M10 19h4" />
+            </svg>
+            Ver preview
+          </span>
+        </button>
       </div>
+
+      {previewAberto && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-ink/40 p-4 backdrop-blur-sm lg:hidden">
+          <div className="mx-auto flex w-fit flex-col items-center">
+            <button
+              onClick={() => setPreviewAberto(false)}
+              className="ds-btn-secondary mb-3 self-end px-4 py-1.5 text-label-md"
+            >
+              Fechar ✕
+            </button>
+            {preview}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

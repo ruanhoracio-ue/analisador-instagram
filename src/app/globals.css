@@ -302,6 +302,14 @@
     box-shadow: none;
   }
 
+  /* Trilha que rola na horizontal sem mostrar a barra (stepper no celular) */
+  .ds-scroll-x {
+    scrollbar-width: none;
+  }
+  .ds-scroll-x::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Grade de pontos de fundo — página inteira, atrás de tudo */
   .ds-dotgrid {
     position: fixed;
