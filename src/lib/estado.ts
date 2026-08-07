@@ -5,6 +5,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Objetivo, Perfil, PapelFixado, Tipo } from '@/engine/tipos'
+import type { Recorte } from './imagem'
 import { lerTodasImagens, removerImagem, salvarImagem } from './idb'
 
 export interface EstadoAntes {
@@ -25,6 +26,8 @@ export interface EstadoTexto {
   cidade: string
   destaques: { nome: string }[]
   fixados: { titulo: string; papel: PapelFixado | '' }[]
+  /** enquadramento da foto — guardado pra permitir reenquadrar depois */
+  recorteFoto: Recorte | null
   /** estado atual do perfil (opcional) — alimenta o antes/depois */
   antes: EstadoAntes
   antesPreenchido: boolean
@@ -50,6 +53,7 @@ export function estadoInicial(): EstadoTexto {
       { titulo: '', papel: '' },
       { titulo: '', papel: '' },
     ],
+    recorteFoto: null,
     antes: { nome: '', usuario: '', bio: '', link: '' },
     antesPreenchido: false,
     confirmados: [],

@@ -4,12 +4,13 @@
  * Esquerda: formulário por bloco, com os avisos do motor embaixo de cada um.
  * Direita: preview fiel, atualizando a cada tecla.
  */
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import type { Avaliacao, Bloco, PapelFixado } from '@/engine/tipos'
 import { avaliacaoDoBloco } from '@/engine/avaliar'
 import type { EstadoTexto } from '@/lib/estado'
-import { arquivoParaDataUrl } from '@/lib/imagem'
+import { arquivoParaDataUrl, recortarParaDataUrl, type Recorte } from '@/lib/imagem'
 import { AvisosDoBloco } from './Avisos'
+import { EditorDeFoto } from './EditorDeFoto'
 import { Contador, PreviewInstagram } from './PreviewInstagram'
 
 function UploadImagem({
@@ -88,6 +89,99 @@ function Secao({
 const CAMPO =
   'w-full rounded-md border border-hairline bg-surface px-3 py-2 text-body-md text-ink placeholder:text-faint focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100'
 
+/** Foto de perfil com enquadramento — o original fica guardado pra reenquadrar */
+function CampoFoto({
+  original,
+  recortada,
+  recorte,
+  onOriginal,
+  onRecorte,
+  onRemover,
+}: {
+  original?: string
+  recortada?: string
+  recorte: Recorte | null
+  onOriginal: (dataUrl: string) => void
+  onRecorte: (r: Recorte, dataUrl: string) => void
+  onRemover: () => void
+}) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [editando, setEditando] = useState<string | null>(null)
+
+  return (
+    <div className="flex items-center gap-4">
+      <button
+        type="button"
+        onClick={() => (original ? setEditando(original) : inputRef.current?.click())}
+        className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full border border-dashed border-hairline-strong bg-elevated/50 transition-colors hover:border-emerald-400"
+      >
+        {recortada ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={recortada} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        ) : (
+          <span className="absolute inset-0 flex items-center justify-center text-faint">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          </span>
+        )}
+      </button>
+
+      <div className="flex flex-col items-start gap-1.5">
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          className="rounded-md border border-hairline bg-surface px-3 py-1.5 text-label-md text-ink transition-colors hover:border-hairline-strong"
+        >
+          {original ? 'Trocar imagem' : 'Escolher imagem'}
+        </button>
+        {original && (
+          <>
+            <button
+              type="button"
+              onClick={() => setEditando(original)}
+              className="rounded-md border border-hairline bg-surface px-3 py-1.5 text-label-md text-ink transition-colors hover:border-hairline-strong"
+            >
+              Reenquadrar
+            </button>
+            <button type="button" onClick={onRemover} className="px-1 text-caption text-faint hover:text-danger-deep">
+              remover
+            </button>
+          </>
+        )}
+      </div>
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={async (e) => {
+          const f = e.target.files?.[0]
+          if (f) {
+            const du = await arquivoParaDataUrl(f, 1200)
+            onOriginal(du)
+            setEditando(du)
+          }
+          e.target.value = ''
+        }}
+      />
+
+      {editando && (
+        <EditorDeFoto
+          original={editando}
+          recorteInicial={recorte}
+          onCancelar={() => setEditando(null)}
+          onConfirmar={async (r) => {
+            onRecorte(r, await recortarParaDataUrl(editando, r))
+            setEditando(null)
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
 export function Editor({
   estado,
   mudar,
@@ -124,14 +218,21 @@ export function Editor({
       {/* ── formulário ─────────────────────────────────────────────── */}
       <div className="min-w-0 flex-1 space-y-4">
         <Secao titulo="Foto de perfil" dica="Confira no círculo de 40px do preview — é o tamanho real no feed e no direct.">
-          <div className="w-28">
-            <UploadImagem
-              formato="circulo"
-              imagem={imagens['foto']}
-              onImagem={(d) => definirImagem('foto', d)}
-              ladoMax={320}
-            />
-          </div>
+          <CampoFoto
+            original={imagens['foto-original']}
+            recortada={imagens['foto']}
+            recorte={estado.recorteFoto}
+            onOriginal={(du) => definirImagem('foto-original', du)}
+            onRecorte={(r, du) => {
+              mudar('recorteFoto', r)
+              definirImagem('foto', du)
+            }}
+            onRemover={() => {
+              definirImagem('foto', null)
+              definirImagem('foto-original', null)
+              mudar('recorteFoto', null)
+            }}
+          />
           {bloco('foto')}
         </Secao>
 

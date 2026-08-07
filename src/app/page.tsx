@@ -1,128 +1,59 @@
-'use client'
-/**
- * O construtor — 5 passos, um estado, um motor.
- * Tudo roda no navegador: texto no localStorage, imagens no IndexedDB.
- */
-import { useMemo } from 'react'
-import { avaliar } from '@/engine/avaliar'
-import { useEstado } from '@/lib/estado'
-import { Abertura } from '@/components/Abertura'
-import { Editor } from '@/components/Editor'
-import { Painel } from '@/components/Painel'
-import { AntesDepois } from '@/components/AntesDepois'
-import { Kit } from '@/components/Kit'
+import Link from 'next/link'
 
-const PASSOS = ['Objetivo', 'Editor', 'Coerência', 'Antes e depois', 'Kit']
-
-export default function Pagina() {
-  const {
-    estado,
-    mudar,
-    imagens,
-    definirImagem,
-    perfil,
-    confirmados,
-    alternarConfirmado,
-    pronto,
-  } = useEstado()
-
-  const avaliacao = useMemo(() => avaliar(perfil, confirmados), [perfil, confirmados])
-
-  if (!pronto) {
-    return (
-      <main className="flex min-h-screen items-center justify-center text-mute">
-        Carregando…
-      </main>
-    )
-  }
-
-  const passo = estado.passo
-
+/** Home — os dois módulos, independentes: diagnóstico olha pra trás, construtor olha pra frente. */
+export default function Home() {
   return (
-    <main className="mx-auto max-w-[1200px] px-6 pb-24">
-      {/* stepper */}
-      <header className="no-print sticky top-0 z-40 -mx-6 mb-8 border-b border-hairline bg-canvas/80 px-6 py-3 backdrop-blur">
-        <nav className="flex items-center gap-1 overflow-x-auto">
-          <span className="mr-3 hidden text-label-lg font-semibold text-ink sm:block">
-            Construtor de Perfil
+    <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-16">
+      <p className="text-eyebrow uppercase tracking-[0.06em] font-semibold text-emerald-deep">
+        Conversão Extrema
+      </p>
+      <h1 className="mt-2 text-heading-xl">
+        Seu perfil, coerente com o <span className="text-brand-gradient">seu objetivo</span>
+      </h1>
+      <p className="mt-3 max-w-xl text-body-lg text-mute">
+        O app não escreve o perfil por você — ele reage ao que você escreve, aponta o problema e
+        explica o porquê. Quem sai daqui sabendo o motivo, escreve sozinho na próxima.
+      </p>
+
+      <div className="mt-10 grid gap-4 sm:grid-cols-2">
+        <Link
+          href="/diagnostico"
+          className="ds-card group p-6 transition-colors hover:border-emerald-400"
+        >
+          <span className="text-eyebrow uppercase tracking-[0.06em] font-semibold text-mute">
+            Olha pra trás
           </span>
-          {PASSOS.map((nome, i) => {
-            const ativo = passo === i
-            const liberado = i === 0 || estado.objetivo !== null
-            return (
-              <button
-                key={nome}
-                disabled={!liberado}
-                onClick={() => mudar('passo', i)}
-                className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-label-md transition-colors ${
-                  ativo
-                    ? 'bg-inverse text-on-inverse'
-                    : liberado
-                      ? 'text-mute hover:bg-ink/5 hover:text-ink'
-                      : 'cursor-not-allowed text-faint'
-                }`}
-              >
-                <span className="mr-1.5 tabular-nums">{i + 1}</span>
-                {nome}
-              </button>
-            )
-          })}
-        </nav>
-      </header>
+          <h2 className="mt-2 text-heading-md group-hover:text-emerald-deep">Diagnóstico</h2>
+          <p className="mt-1.5 text-body-sm text-mute">
+            Um perfil que já existe — o seu ou de um concorrente. Cole o que ele mostra e receba o
+            que está errado, com o porquê de cada item.
+          </p>
+          <span className="mt-4 inline-block text-label-md font-medium text-emerald-deep">
+            Analisar um perfil →
+          </span>
+        </Link>
 
-      {passo === 0 && (
-        <Abertura
-          tipo={estado.tipo}
-          objetivo={estado.objetivo}
-          onTipo={(t) => mudar('tipo', t)}
-          onObjetivo={(o) => mudar('objetivo', o)}
-          onComecar={() => mudar('passo', 1)}
-        />
-      )}
+        <Link
+          href="/construtor"
+          className="ds-card group p-6 transition-colors hover:border-emerald-400"
+        >
+          <span className="text-eyebrow uppercase tracking-[0.06em] font-semibold text-mute">
+            Olha pra frente
+          </span>
+          <h2 className="mt-2 text-heading-md group-hover:text-emerald-deep">Construtor</h2>
+          <p className="mt-1.5 text-body-sm text-mute">
+            Monte o perfil campo a campo com preview ao vivo, painel de coerência, antes/depois e o
+            kit pronto pra aplicar. Sessão de 30–40 minutos.
+          </p>
+          <span className="mt-4 inline-block text-label-md font-medium text-emerald-deep">
+            Montar meu perfil →
+          </span>
+        </Link>
+      </div>
 
-      {passo === 1 && (
-        <Editor
-          estado={estado}
-          mudar={mudar}
-          imagens={imagens}
-          definirImagem={definirImagem}
-          avaliacao={avaliacao}
-          confirmados={confirmados}
-          alternarConfirmado={alternarConfirmado}
-        />
-      )}
-
-      {passo === 2 && (
-        <Painel
-          avaliacao={avaliacao}
-          confirmados={confirmados}
-          onIrParaEditor={() => mudar('passo', 1)}
-        />
-      )}
-
-      {passo === 3 && <AntesDepois estado={estado} mudar={mudar} imagens={imagens} />}
-
-      {passo === 4 && (
-        <Kit estado={estado} imagens={imagens} avaliacao={avaliacao} confirmados={confirmados} />
-      )}
-
-      {/* navegação inferior */}
-      {passo > 0 && (
-        <div className="no-print mt-10 flex justify-between">
-          <button
-            onClick={() => mudar('passo', passo - 1)}
-            className="ds-btn-secondary px-5 py-2 text-label-md"
-          >
-            ← {PASSOS[passo - 1]}
-          </button>
-          {passo < PASSOS.length - 1 && (
-            <button onClick={() => mudar('passo', passo + 1)} className="shiny-cta px-6 py-2 text-label-md">
-              <span className="shiny-dots" aria-hidden="true" />
-              <span className="shiny-cta-content">{PASSOS[passo + 1]} →</span>
-            </button>
-          )}
-        </div>
-      )}
+      <p className="mt-8 text-caption text-faint">
+        Os dois usam o mesmo motor de regras — melhorar uma regra melhora os dois.
+      </p>
     </main>
   )
 }
