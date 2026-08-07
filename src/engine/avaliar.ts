@@ -113,6 +113,23 @@ function temConteudo(p: Perfil, bloco: Bloco): boolean {
   }
 }
 
+/**
+ * Progresso da SESSÃO — quantas decisões já foram resolvidas.
+ *
+ * Não é nota de qualidade: nota geral única vira jogo de otimizar número, e
+ * por isso a qualidade continua vivendo em `notas`, por bloco. Aqui a conta é
+ * de ritmo — quanto falta pra sessão de 30–40 min terminar — pra pessoa saber
+ * onde está no caminho em vez de rolar a página no escuro.
+ */
+export function progresso(perfil: Perfil, confirmados: ReadonlySet<string> = new Set()) {
+  const aplicaveis = regrasAplicaveis(perfil)
+  const total = aplicaveis.length
+  const resolvidas = aplicaveis.filter((r) =>
+    r.kind === 'auto' ? !r.condicao!(perfil) : confirmados.has(r.id),
+  ).length
+  return { resolvidas, total, fracao: total === 0 ? 0 : resolvidas / total }
+}
+
 /** violações e checks de um bloco específico — usado pela UI campo a campo */
 export function avaliacaoDoBloco(av: Avaliacao, bloco: Bloco) {
   return {

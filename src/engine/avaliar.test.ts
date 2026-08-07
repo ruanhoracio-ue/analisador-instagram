@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { REGRAS } from '@/data/regras'
-import { avaliar, regrasAplicaveis } from './avaliar'
+import { avaliar, progresso, regrasAplicaveis } from './avaliar'
 import { perfilVazio, type Perfil } from './tipos'
 
 /** perfil razoavelmente saudável para o objetivo direct — base dos testes */
@@ -57,6 +57,28 @@ describe('formato das regras', () => {
     for (const r of REGRAS) {
       if (r.elogio) expect(r.kind, r.id).toBe('auto')
     }
+  })
+})
+
+describe('progresso da sessão', () => {
+  it('perfil vazio começa longe do fim; perfil pronto chega em 100%', () => {
+    const vazio = progresso(perfilVazio())
+    const todosChecks = new Set(REGRAS.filter((r) => r.kind === 'self-check').map((r) => r.id))
+    const pronto = progresso(perfilBom(), todosChecks)
+    expect(vazio.fracao).toBeLessThan(0.6)
+    expect(pronto.resolvidas).toBe(pronto.total)
+    expect(pronto.fracao).toBe(1)
+  })
+
+  it('confirmar um self-check avança o progresso', () => {
+    const antes = progresso(perfilBom())
+    const depois = progresso(perfilBom(), new Set(['grid-tema-visivel']))
+    expect(depois.resolvidas).toBe(antes.resolvidas + 1)
+  })
+
+  it('o total acompanha as regras aplicáveis ao objetivo', () => {
+    const direct = progresso({ ...perfilBom(), objetivo: 'direct' })
+    expect(direct.total).toBe(regrasAplicaveis({ ...perfilBom(), objetivo: 'direct' }).length)
   })
 })
 

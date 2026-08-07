@@ -456,18 +456,44 @@
   background-image: linear-gradient(to right, var(--brand-grad-from), var(--brand-grad-to));
 }
 
-/* Impressão — o antes/depois é a tela printável que o aluno manda no grupo */
+/* Impressão — o antes/depois e o diagnóstico saem em papel/PDF */
 @media print {
-  .no-print {
-    display: none !important;
-  }
+  .no-print,
   .ds-dotgrid {
     display: none !important;
+  }
+  /* o tema escuro não vai pro papel */
+  html.dark {
+    --c-canvas: 255 255 255;
+    --c-surface: 255 255 255;
+    --c-elevated: 245 245 245;
+    --c-ink: 23 23 23;
+    --c-body: 38 38 38;
+    --c-mute: 82 82 82;
+    --c-faint: 140 140 140;
+    --c-hairline: 220 220 220;
+    --c-hairline-strong: 190 190 190;
   }
   body {
     background: #fff !important;
   }
   .area-print {
     border: none !important;
+  }
+  /* a coluna do relatório ocupa a página inteira, sem sticky nem rolagem */
+  .print-full {
+    position: static !important;
+    max-height: none !important;
+    overflow: visible !important;
+    width: 100% !important;
+  }
+  /* nada de card partido no meio entre duas páginas */
+  .ds-card,
+  .print-keep {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  @page {
+    margin: 14mm;
   }
 }

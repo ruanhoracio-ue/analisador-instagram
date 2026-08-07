@@ -1,12 +1,17 @@
 import Link from 'next/link'
 import { Logo } from '@/components/Logo'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
-/** Home — os dois módulos, independentes: diagnóstico olha pra trás, construtor olha pra frente. */
+/** Home — os módulos, independentes: diagnóstico olha pra trás, construtor olha pra frente. */
 export default function Home() {
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-16">
-      <Logo className="h-9" />
-      <h1 className="mt-6 text-heading-xl">
+      <div className="flex items-center justify-between">
+        <Logo className="h-9" />
+        <ThemeToggle />
+      </div>
+
+      <h1 className="mt-8 text-heading-xl">
         Seu perfil, coerente com o <span className="text-brand-gradient">seu objetivo</span>
       </h1>
       <p className="mt-3 max-w-xl text-body-lg text-mute">
@@ -50,8 +55,22 @@ export default function Home() {
         </Link>
       </div>
 
+      <Link
+        href="/exemplos"
+        className="ds-card group mt-4 flex items-center justify-between gap-4 p-5 transition-colors hover:border-emerald-400"
+      >
+        <div>
+          <h2 className="text-heading-sm group-hover:text-emerald-deep">Exemplos comentados</h2>
+          <p className="mt-1 text-body-sm text-mute">
+            Um perfil-modelo por objetivo, com o motivo de cada escolha. Trave menos por falta de
+            referência.
+          </p>
+        </div>
+        <span className="shrink-0 text-label-md font-medium text-emerald-deep">Ver →</span>
+      </Link>
+
       <p className="mt-8 text-caption text-faint">
-        Os dois usam o mesmo motor de regras — melhorar uma regra melhora os dois.
+        Diagnóstico e construtor usam o mesmo motor de regras — melhorar uma regra melhora os dois.
       </p>
     </main>
   )

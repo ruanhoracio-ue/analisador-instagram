@@ -6,7 +6,8 @@
 import { useMemo } from 'react'
 import Link from 'next/link'
 import { Logo } from '@/components/Logo'
-import { avaliar } from '@/engine/avaliar'
+import { avaliar, progresso } from '@/engine/avaliar'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { useEstado } from '@/lib/estado'
 import { Abertura } from '@/components/Abertura'
 import { Editor } from '@/components/Editor'
@@ -29,6 +30,7 @@ export default function Pagina() {
   } = useEstado()
 
   const avaliacao = useMemo(() => avaliar(perfil, confirmados), [perfil, confirmados])
+  const ritmo = useMemo(() => progresso(perfil, confirmados), [perfil, confirmados])
 
   if (!pronto) {
     return (
@@ -43,7 +45,7 @@ export default function Pagina() {
   return (
     <main className="mx-auto max-w-[1200px] px-6 pb-24">
       {/* stepper */}
-      <header className="no-print sticky top-0 z-40 -mx-6 mb-8 border-b border-hairline bg-canvas/95 px-6 py-3 backdrop-blur">
+      <header className="no-print sticky top-0 z-40 -mx-6 mb-8 border-b border-hairline bg-canvas/95 px-6 pt-3 backdrop-blur">
         <nav className="ds-scroll-x flex items-center gap-1 overflow-x-auto">
           <Link
             href="/"
@@ -77,7 +79,24 @@ export default function Pagina() {
               </button>
             )
           })}
+          <div className="ml-auto flex shrink-0 items-center gap-3 pl-3">
+            {estado.objetivo && (
+              <span className="hidden whitespace-nowrap text-caption tabular-nums text-mute sm:block">
+                {ritmo.resolvidas} de {ritmo.total} decisões
+              </span>
+            )}
+            <ThemeToggle />
+          </div>
         </nav>
+
+        {/* ritmo da sessão — quanto falta, não quão bom está. A qualidade
+            continua por bloco no painel de coerência. */}
+        <div className="mt-3 h-0.5 w-full overflow-hidden rounded-full bg-elevated">
+          <div
+            className="h-full rounded-full bg-brand-gradient transition-[width] duration-slow ease-out-soft"
+            style={{ width: `${Math.round(ritmo.fracao * 100)}%` }}
+          />
+        </div>
       </header>
 
       {passo === 0 && (

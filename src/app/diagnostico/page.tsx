@@ -15,6 +15,7 @@ import type { Objetivo, Perfil, Tipo } from '@/engine/tipos'
 import { OBJETIVOS, TIPOS } from '@/engine/tipos'
 import { estadoInicial } from '@/lib/estado'
 import { Logo } from '@/components/Logo'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { Contador } from '@/components/PreviewInstagram'
 import {
   ListaDeChecks,
@@ -160,16 +161,38 @@ export default function Diagnostico() {
 
   return (
     <main className="mx-auto max-w-[1100px] px-6 pb-24">
-      <header className="sticky top-0 z-40 -mx-6 mb-8 flex items-center justify-between border-b border-hairline bg-canvas/95 px-6 py-3 backdrop-blur">
+      <header className="no-print sticky top-0 z-40 -mx-6 mb-8 flex items-center justify-between gap-3 border-b border-hairline bg-canvas/95 px-6 py-3 backdrop-blur">
         <Link href="/" className="shrink-0 transition-opacity hover:opacity-70" title="Voltar ao início">
           <Logo className="h-7" />
         </Link>
-        <span className="hidden text-caption text-faint sm:block">o mesmo motor do construtor</span>
+        <div className="flex shrink-0 items-center gap-2">
+          {comecou && (
+            <button
+              onClick={() => window.print()}
+              className="rounded-md border border-hairline bg-surface px-3 py-1.5 text-label-md text-ink transition-colors hover:border-hairline-strong"
+            >
+              Salvar PDF
+            </button>
+          )}
+          <ThemeToggle />
+        </div>
       </header>
+
+      {/* cabeçalho que só existe no papel — identifica o relatório impresso */}
+      <div className="mb-6 hidden print:block">
+        <Logo className="h-6" />
+        <h1 className="mt-3 text-heading-md">
+          Diagnóstico de perfil {dados.usuario && `— @${dados.usuario.replace(/^@/, '')}`}
+        </h1>
+        <p className="mt-0.5 text-body-sm text-mute">
+          Objetivo analisado: {OBJETIVOS.find((o) => o.id === dados.objetivo)?.rotulo} ·{' '}
+          {TIPOS.find((t) => t.id === dados.tipo)?.rotulo}
+        </p>
+      </div>
 
       <div className="flex flex-col gap-10 lg:flex-row">
         {/* ── entrada — acompanha a rolagem do relatório no desktop ─── */}
-        <div className="min-w-0 flex-1 space-y-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-1">
+        <div className="no-print min-w-0 flex-1 space-y-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-1">
           {/* print do perfil — referência visual ao lado dos campos */}
           <section className="ds-card p-4">
             <div className="flex items-start justify-between gap-4">
@@ -340,7 +363,7 @@ export default function Diagnostico() {
         </div>
 
         {/* ── relatório ────────────────────────────────────────────── */}
-        <div className="min-w-0 flex-1 space-y-6">
+        <div className="print-full min-w-0 flex-1 space-y-6">
           {!comecou ? (
             <div className="ds-card flex h-full min-h-64 items-center justify-center p-8 text-center text-body-md text-mute">
               O relatório aparece aqui conforme você preenche —<br />
@@ -381,7 +404,7 @@ export default function Diagnostico() {
                 </div>
               </div>
 
-              <div className="ds-card flex items-center justify-between gap-4 p-4">
+              <div className="ds-card no-print flex items-center justify-between gap-4 p-4">
                 <p className="text-body-sm text-mute">
                   Quer corrigir? Leva tudo pro construtor — os campos já vão preenchidos e o
                   antes/depois sai de graça.
