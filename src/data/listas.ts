@@ -1,0 +1,123 @@
+/**
+ * Listas de dados usadas pelas condições das regras.
+ * São dados, não lógica — edite à vontade sem tocar no motor.
+ */
+
+/**
+ * Teste do concorrente: se a bio serve igualmente para qualquer concorrente
+ * do mesmo ramo, ela não serve. Frases comparadas sem acento e em minúsculas.
+ */
+export const FRASES_GENERICAS: string[] = [
+  'ajudo pessoas',
+  'ajudando pessoas',
+  'transformando vidas',
+  'transformar vidas',
+  'transformo vidas',
+  'mudando vidas',
+  'mudar a sua vida',
+  'apaixonado pelo que faco',
+  'apaixonada pelo que faco',
+  'apaixonado pelo que faz',
+  'alcancar resultados',
+  'alcancarem resultados',
+  'alcancar seus objetivos',
+  'resultados reais',
+  'realizando sonhos',
+  'realizar sonhos',
+  'fazendo a diferenca',
+  'fazer a diferenca',
+  'viver com proposito',
+  'gerando valor',
+  'alta performance',
+  'sucesso garantido',
+  'o melhor da regiao',
+  'qualidade e compromisso',
+  'excelencia em atendimento',
+]
+
+/** domínios de agregadores de link — lista de dez links dilui o clique */
+export const AGREGADORES_LINK: string[] = [
+  'linktr.ee',
+  'linktree',
+  'beacons.ai',
+  'bio.link',
+  'linkin.bio',
+  'lnk.bio',
+  'taplink',
+  'campsite.bio',
+  'milkshake.app',
+]
+
+/**
+ * Sinais de ofício no campo Nome — se nenhum aparece (e não há separador nem
+ * número), o Nome provavelmente é só o nome próprio. Comparados como prefixo
+ * de palavra, sem acento ('nutri' pega 'nutricionista' e 'nutrição').
+ */
+export const SINAIS_OFICIO: string[] = [
+  'nutri',
+  'coach',
+  'psic',
+  'dent',
+  'odont',
+  'advog',
+  'arquitet',
+  'design',
+  'foto',
+  'video',
+  'market',
+  'trafego',
+  'gestor',
+  'gestao',
+  'social',
+  'personal',
+  'trainer',
+  'estetic',
+  'beleza',
+  'cabel',
+  'maquia',
+  'confeit',
+  'doce',
+  'moda',
+  'loja',
+  'store',
+  'studio',
+  'estudio',
+  'consult',
+  'mentor',
+  'professor',
+  'fisio',
+  'medic',
+  'veterin',
+  'contab',
+  'imobil',
+  'imovel',
+  'corretor',
+  'engenh',
+  'program',
+  'agencia',
+  'clinica',
+  'academia',
+  'crossfit',
+  'pilates',
+  'yoga',
+  'curso',
+  'escola',
+  'digital',
+  'vendas',
+  'copywriter',
+  'lash',
+  'nail',
+  'barbeiro',
+  'barber',
+  'tattoo',
+  'chef',
+  'gastro',
+  'terapeuta',
+  'terapia',
+  'enfermeir',
+  'biomedic',
+  'farmac',
+  'nutrolog',
+  'dermato',
+  'pediatr',
+]

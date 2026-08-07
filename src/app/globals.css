@@ -1,0 +1,449 @@
+@import 'tailwindcss';
+
+/* Tema escuro por classe em <html> — tokens prontos, toggle fica para depois */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/**
+ * ─────────────────────────────────────────────────────────────────────────
+ * TOKENS — portados do design system Conversão Extrema (fonte de verdade:
+ * design-system-conversao/src/index.css). Este app prioriza o tema claro:
+ * fundo branco, superfícies por borda hairline de 1px, esmeralda com
+ * parcimônia (CTAs e acentos).
+ * ─────────────────────────────────────────────────────────────────────────
+ */
+@theme {
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1440px;
+
+  /* Escala neutra proprietária (levemente quente — pareia com Geist) */
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-150: #ececec;
+  --color-neutral-200: #e6e6e6;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-400: #a1a1a1;
+  --color-neutral-500: #737373;
+  --color-neutral-600: #525252;
+  --color-neutral-700: #404040;
+  --color-neutral-800: #262626;
+  --color-neutral-900: #171717;
+  --color-neutral-950: #0a0a0a;
+
+  /* Acento — esmeralda */
+  --color-emerald-50: #ecfdf5;
+  --color-emerald-100: #d1fae5;
+  --color-emerald-200: #a7f3d0;
+  --color-emerald-300: #6ee7b7;
+  --color-emerald-400: #34d399;
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-emerald-700: #047857;
+  --color-emerald-800: #065f46;
+  --color-emerald-900: #064e3b;
+  --color-emerald-950: #022c22;
+  --color-emerald: #10b981;
+  --color-emerald-light: #34d399;
+
+  /* Feedback — matiz base */
+  --color-success: #10b981;
+  --color-warning: #f5a623;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Escala tipográfica nomeada */
+  --text-heading-xl: 40px;
+  --text-heading-xl--line-height: 1.1;
+  --text-heading-xl--letter-spacing: -0.022em;
+  --text-heading-xl--font-weight: 600;
+
+  --text-heading-lg: 32px;
+  --text-heading-lg--line-height: 1.15;
+  --text-heading-lg--letter-spacing: -0.02em;
+  --text-heading-lg--font-weight: 600;
+
+  --text-heading-md: 24px;
+  --text-heading-md--line-height: 1.25;
+  --text-heading-md--letter-spacing: -0.017em;
+  --text-heading-md--font-weight: 600;
+
+  --text-heading-sm: 20px;
+  --text-heading-sm--line-height: 1.3;
+  --text-heading-sm--letter-spacing: -0.013em;
+  --text-heading-sm--font-weight: 600;
+
+  --text-body-xl: 20px;
+  --text-body-xl--line-height: 1.6;
+  --text-body-xl--letter-spacing: 0;
+  --text-body-xl--font-weight: 400;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 1.6;
+  --text-body-lg--letter-spacing: 0;
+  --text-body-lg--font-weight: 400;
+
+  --text-body-md: 16px;
+  --text-body-md--line-height: 1.6;
+  --text-body-md--letter-spacing: 0;
+  --text-body-md--font-weight: 400;
+
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 1.55;
+  --text-body-sm--letter-spacing: 0;
+  --text-body-sm--font-weight: 400;
+
+  --text-label-lg: 15px;
+  --text-label-lg--line-height: 1.2;
+  --text-label-lg--letter-spacing: -0.006em;
+  --text-label-lg--font-weight: 500;
+
+  --text-label-md: 13px;
+  --text-label-md--line-height: 1.2;
+  --text-label-md--letter-spacing: 0;
+  --text-label-md--font-weight: 500;
+
+  --text-caption: 12px;
+  --text-caption--line-height: 1.4;
+  --text-caption--letter-spacing: 0;
+  --text-caption--font-weight: 400;
+
+  --text-eyebrow: 12px;
+  --text-eyebrow--line-height: 1;
+  --text-eyebrow--letter-spacing: 0.14em;
+  --text-eyebrow--font-weight: 400;
+
+  --tracking-tightest: -0.04em;
+  --tracking-tighter: -0.03em;
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-eyebrow: 0.14em;
+  --tracking-label: 0.04em;
+
+  --spacing: 0.25rem;
+  --spacing-section-sm: 64px;
+  --spacing-section: 96px;
+  --spacing-gutter: 24px;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+
+  /* Elevação — discreta; no sistema quase tudo se separa por borda de 1px */
+  --shadow-xs: 0 1px 2px 0 rgb(23 23 23 / 0.04);
+  --shadow-sm: 0 1px 3px 0 rgb(23 23 23 / 0.06), 0 1px 2px -1px rgb(23 23 23 / 0.04);
+  --shadow-md: 0 4px 12px -2px rgb(23 23 23 / 0.08);
+  --shadow-lg: 0 12px 32px -8px rgb(23 23 23 / 0.12);
+  --shadow-soft: 0 20px 50px -24px rgb(23 23 23 / 0.18);
+
+  --transition-duration-fast: 150ms;
+  --transition-duration-normal: 200ms;
+  --transition-duration-slow: 300ms;
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --max-width-container: 1200px;
+  --max-width-container-wide: 1360px;
+}
+
+/* Tokens semânticos temáveis — canais RGB para permitir opacidade (bg-ink/5) */
+@theme inline {
+  --color-ink: rgb(var(--c-ink));
+  --color-body: rgb(var(--c-body));
+  --color-mute: rgb(var(--c-mute));
+  --color-faint: rgb(var(--c-faint));
+  --color-hairline: rgb(var(--c-hairline));
+  --color-hairline-soft: rgb(var(--c-hairline-soft));
+  --color-hairline-strong: rgb(var(--c-hairline-strong));
+  --color-canvas: rgb(var(--c-canvas));
+  --color-surface: rgb(var(--c-surface));
+  --color-elevated: rgb(var(--c-elevated));
+  --color-inverse: rgb(var(--c-inverse));
+  --color-on-inverse: rgb(var(--c-on-inverse));
+
+  --color-emerald-soft: var(--fb-emerald-soft);
+  --color-emerald-deep: var(--fb-emerald-deep);
+  --color-success-soft: var(--fb-success-soft);
+  --color-success-deep: var(--fb-success-deep);
+  --color-warning-soft: var(--fb-warning-soft);
+  --color-warning-deep: var(--fb-warning-deep);
+  --color-danger-soft: var(--fb-danger-soft);
+  --color-danger-deep: var(--fb-danger-deep);
+  --color-info-soft: var(--fb-info-soft);
+  --color-info-deep: var(--fb-info-deep);
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+
+    /* Pares soft/deep — claro: fundo pálido, texto escuro do mesmo matiz */
+    --fb-emerald-soft: #d1fae5;
+    --fb-emerald-deep: #059669;
+    --fb-success-soft: #d1fae5;
+    --fb-success-deep: #047857;
+    --fb-warning-soft: #fef3c7;
+    --fb-warning-deep: #b45309;
+    --fb-danger-soft: #fee2e2;
+    --fb-danger-deep: #b91c1c;
+    --fb-info-soft: #dbeafe;
+    --fb-info-deep: #1d4ed8;
+    --sel-bg: #d1fae5;
+    --sel-fg: #059669;
+
+    --c-canvas: 250 250 250;
+    --c-surface: 255 255 255;
+    --c-elevated: 245 245 245;
+    --c-ink: 23 23 23;
+    --c-body: 38 38 38;
+    --c-mute: 82 82 82;
+    --c-faint: 161 161 161;
+    --c-hairline: 236 236 236;
+    --c-hairline-soft: 244 244 244;
+    --c-hairline-strong: 212 212 212;
+    --c-inverse: 23 23 23;
+    --c-on-inverse: 255 255 255;
+    --brand-grad-from: var(--color-emerald-500);
+    --brand-grad-to: var(--color-emerald-400);
+    --dot-r: 0.75px;
+    --dot-r-fade: 1.2px;
+  }
+
+  .dark {
+    color-scheme: dark;
+
+    --fb-emerald-soft: rgb(16 185 129 / 0.16);
+    --fb-emerald-deep: #34d399;
+    --fb-success-soft: rgb(16 185 129 / 0.16);
+    --fb-success-deep: #34d399;
+    --fb-warning-soft: rgb(245 166 35 / 0.16);
+    --fb-warning-deep: #fbbf24;
+    --fb-danger-soft: rgb(239 68 68 / 0.16);
+    --fb-danger-deep: #f87171;
+    --fb-info-soft: rgb(59 130 246 / 0.16);
+    --fb-info-deep: #60a5fa;
+    --sel-bg: rgb(16 185 129 / 0.35);
+    --sel-fg: #ecfdf5;
+
+    --c-canvas: 10 10 10;
+    --c-surface: 23 23 23;
+    --c-elevated: 38 38 38;
+    --c-ink: 250 250 250;
+    --c-body: 209 209 209;
+    --c-mute: 168 168 168;
+    --c-faint: 115 115 115;
+    --c-hairline: 38 38 38;
+    --c-hairline-soft: 31 31 31;
+    --c-hairline-strong: 64 64 64;
+    --c-inverse: 250 250 250;
+    --c-on-inverse: 10 10 10;
+    --dot-r: 1px;
+    --dot-r-fade: 1.6px;
+  }
+
+  /* Densidade de aplicação (o construtor é tela de trabalho, não landing):
+     raio menor, tipografia um degrau abaixo, campo de 36px com canto discreto */
+  .ds-app {
+    --radius-xs: 3px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 20px;
+
+    --text-heading-xl: 28px;
+    --text-heading-lg: 22px;
+    --text-heading-md: 18px;
+    --text-heading-sm: 15px;
+    --text-body-xl: 16px;
+    --text-body-lg: 15px;
+    --text-body-md: 14px;
+
+    --text-eyebrow--letter-spacing: 0.06em;
+    --text-eyebrow--font-weight: 600;
+
+    --ds-input-height: 2.25rem;
+    --ds-input-radius: var(--radius-md);
+    --ds-input-px: 0.75rem;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-ink;
+  }
+
+  ::selection {
+    background-color: var(--sel-bg);
+    color: var(--sel-fg);
+  }
+}
+
+@layer components {
+  /* Card padrão — superfície por contorno: branco chapado + hairline 1px,
+     SEM sombra projetada (regra de ouro do sistema) */
+  .ds-card {
+    @apply relative rounded-xl border border-hairline bg-surface;
+    box-shadow: none;
+  }
+
+  /* Grade de pontos de fundo — página inteira, atrás de tudo */
+  .ds-dotgrid {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: radial-gradient(
+      circle,
+      rgb(var(--c-ink) / 0.05) var(--dot-r),
+      transparent var(--dot-r-fade)
+    );
+    background-size: 24px 24px;
+  }
+}
+
+/* ==========================================================================
+   Shiny CTA — pílula escura com borda esmeralda giratória (assinatura da
+   marca). Código canônico do design system; preserve os números pequenos.
+   ========================================================================== */
+@property --gradient-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+@property --gradient-angle-offset { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+
+.shiny-cta {
+  --gradient-angle: 0deg;
+  --gradient-angle-offset: 0deg;
+  position: relative;
+  overflow: hidden;
+  border-radius: 9999px;
+  color: #ffffff;
+  background: linear-gradient(#1c2421, #0a0a0a) padding-box,
+    conic-gradient(
+        from calc(var(--gradient-angle) - var(--gradient-angle-offset)),
+        transparent 0%, #047857 5%, #10b981 15%, #047857 30%, transparent 40%, transparent 100%
+      )
+      border-box;
+  border: 1px solid transparent;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), inset 0 -2px 6px rgba(0, 0, 0, 0.2),
+    0 12px 24px -8px rgba(0, 0, 0, 0.5);
+  transition: box-shadow 300ms ease, transform 300ms ease;
+  isolation: isolate;
+  z-index: 1;
+  animation: border-spin 2.5s linear infinite;
+}
+
+@keyframes border-spin {
+  to {
+    --gradient-angle: 360deg;
+  }
+}
+
+.shiny-cta:hover {
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 -2px 6px rgba(0, 0, 0, 0.25),
+    0 16px 32px -8px rgba(16, 185, 129, 0.6);
+}
+.shiny-cta:active {
+  transform: translateY(1px);
+}
+
+/* Pontos: grade 4×4px, ponto de 0.5px centrado em 0.5px 0.5px (nunca em 1px —
+   cai na quina entre quatro pixels e some em tela 1x), faixa diagonal 125° */
+.shiny-dots {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  background-size: 4px 4px;
+  --dots-mask: linear-gradient(
+    125deg,
+    transparent 54%,
+    rgba(0, 0, 0, 0.85) 66%,
+    rgba(0, 0, 0, 0.85) 74%,
+    transparent 85%
+  );
+  -webkit-mask-image: var(--dots-mask);
+  mask-image: var(--dots-mask);
+}
+.shiny-cta .shiny-dots {
+  background-image: radial-gradient(circle at 0.5px 0.5px, rgba(16, 185, 129, 0.5) 0.5px, transparent 0);
+}
+
+.shiny-cta-content {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+}
+
+/* Botão secundário — branco no claro; hover revela anel esmeralda giratório */
+.ds-btn-secondary {
+  position: relative;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: linear-gradient(to bottom, #fff, #fafafa);
+  color: #171717;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05), inset 0 1px 1px #fff,
+    0 8px 20px -4px rgba(0, 0, 0, 0.12);
+}
+.dark .ds-btn-secondary {
+  background: transparent;
+  color: rgb(var(--c-ink));
+  box-shadow: inset 0 0 0 1px rgb(var(--c-hairline-strong));
+}
+.dark .ds-btn-secondary:hover {
+  background: #fff;
+  color: #171717;
+  box-shadow: none;
+}
+.ds-btn-secondary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--gradient-angle),
+    transparent 0%, #047857 5%, #10b981 15%, #047857 30%, transparent 40%, transparent 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+  animation: border-spin 2.5s linear infinite;
+}
+.ds-btn-secondary:hover::after {
+  opacity: 1;
+}
+
+/* Gradiente da marca — SÓ no trecho destacado do título, nunca no título todo */
+@utility text-brand-gradient {
+  background-image: linear-gradient(to right, var(--brand-grad-from), var(--brand-grad-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility bg-brand-gradient {
+  background-image: linear-gradient(to right, var(--brand-grad-from), var(--brand-grad-to));
+}
