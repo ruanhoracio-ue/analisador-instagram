@@ -447,3 +447,19 @@
 @utility bg-brand-gradient {
   background-image: linear-gradient(to right, var(--brand-grad-from), var(--brand-grad-to));
 }
+
+/* Impressão — o antes/depois é a tela printável que o aluno manda no grupo */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .ds-dotgrid {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+  .area-print {
+    border: none !important;
+  }
+}
