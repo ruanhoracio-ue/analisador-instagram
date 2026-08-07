@@ -77,11 +77,22 @@ export interface Regra {
   mensagem: string
   /** a razão, em uma frase, em linguagem simples — nunca sai sem ela */
   porque: string
+  /**
+   * Como resolver: a FÓRMULA, não o texto pronto. O app não escreve o perfil
+   * pela pessoa — mostra a forma e deixa ela preencher com o que é dela.
+   */
+  comoResolver?: string
+  /** exemplo curto da fórmula aplicada, para a forma ficar concreta */
+  exemplo?: string
+  /** dito quando a regra PASSA — ensina o que já está certo (só nas 'auto') */
+  elogio?: string
 }
 
 export interface Avaliacao {
   /** regras 'auto' violadas, na ordem de impacto do arquivo de regras */
   violadas: Regra[]
+  /** regras 'auto' que passaram e têm elogio — o que já está certo */
+  acertos: Regra[]
   /** self-checks aplicáveis ao perfil (a UI marca as confirmadas) */
   checks: Regra[]
   /** nota 0–10 por bloco — nota geral única vira jogo de otimizar número */

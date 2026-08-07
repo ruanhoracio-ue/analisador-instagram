@@ -5,6 +5,25 @@
  */
 import type { Regra, Severidade } from '@/engine/tipos'
 
+/** Como resolver + exemplo — a fórmula, nunca o texto pronto */
+export function ComoResolver({ regra, tom = 'claro' }: { regra: Regra; tom?: 'claro' | 'escuro' }) {
+  if (!regra.comoResolver) return null
+  const borda = tom === 'escuro' ? 'border-emerald-300' : 'border-hairline-strong'
+  return (
+    <div className={`mt-2.5 rounded-md border-l-2 ${borda} bg-elevated/50 px-3 py-2`}>
+      <p className="text-[10px] font-semibold uppercase tracking-label text-emerald-deep">
+        Como resolver
+      </p>
+      <p className="mt-0.5 text-body-sm text-body">{regra.comoResolver}</p>
+      {regra.exemplo && (
+        <p className="mt-1.5 border-l border-hairline-strong pl-2 text-caption italic text-mute">
+          {regra.exemplo}
+        </p>
+      )}
+    </div>
+  )
+}
+
 const ESTILO: Record<Severidade, { borda: string; fundo: string; texto: string; selo: string }> = {
   critica: {
     borda: 'border-l-danger',
@@ -35,6 +54,7 @@ export function AvisoRegra({ regra }: { regra: Regra }) {
         <span className="text-body-sm font-medium text-ink">{regra.mensagem}</span>
       </div>
       <p className="mt-0.5 text-caption text-mute">{regra.porque}</p>
+      <ComoResolver regra={regra} />
     </div>
   )
 }
@@ -65,6 +85,11 @@ export function SelfCheck({
           {regra.mensagem}
         </span>
         <span className="mt-0.5 block text-caption text-mute">{regra.porque}</span>
+        {!confirmado && regra.comoResolver && (
+          <span className="mt-1.5 block border-l-2 border-hairline-strong pl-2 text-caption text-body">
+            {regra.comoResolver}
+          </span>
+        )}
       </span>
     </label>
   )

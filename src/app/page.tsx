@@ -5,7 +5,7 @@ import { Logo } from '@/components/Logo'
 export default function Home() {
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-16">
-      <Logo className="h-6" />
+      <Logo className="h-9" />
       <h1 className="mt-6 text-heading-xl">
         Seu perfil, coerente com o <span className="text-brand-gradient">seu objetivo</span>
       </h1>

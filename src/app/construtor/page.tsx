@@ -50,7 +50,7 @@ export default function Pagina() {
             className="mr-4 hidden shrink-0 transition-opacity hover:opacity-70 sm:block"
             title="Voltar ao início"
           >
-            <Logo className="h-4" />
+            <Logo className="h-7" />
           </Link>
           {PASSOS.map((nome, i) => {
             const ativo = passo === i

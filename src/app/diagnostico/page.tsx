@@ -20,8 +20,10 @@ import {
   ListaDeChecks,
   ListaDeProblemas,
   NotasPorBloco,
+  PontosFortes,
   ProximoPasso,
 } from '@/components/Relatorio'
+import { arquivoParaDataUrl } from '@/lib/imagem'
 
 interface Dados {
   usuario: string
@@ -88,6 +90,7 @@ export default function Diagnostico() {
   const router = useRouter()
   const [dados, setDados] = useState<Dados>(DADOS_INICIAIS)
   const [pronto, setPronto] = useState(false)
+  const [print, setPrint] = useState<string | null>(null)
 
   useEffect(() => {
     try {
@@ -158,18 +161,57 @@ export default function Diagnostico() {
   return (
     <main className="mx-auto max-w-[1100px] px-6 pb-24">
       <header className="sticky top-0 z-40 -mx-6 mb-8 flex items-center justify-between border-b border-hairline bg-canvas/80 px-6 py-3 backdrop-blur">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="shrink-0 transition-opacity hover:opacity-70" title="Voltar ao início">
-            <Logo className="h-4" />
-          </Link>
-          <span className="text-label-lg font-semibold text-ink">Diagnóstico de perfil</span>
-        </div>
+        <Link href="/" className="shrink-0 transition-opacity hover:opacity-70" title="Voltar ao início">
+          <Logo className="h-7" />
+        </Link>
         <span className="text-caption text-faint">o mesmo motor do construtor</span>
       </header>
 
       <div className="flex flex-col gap-10 lg:flex-row">
         {/* ── entrada ──────────────────────────────────────────────── */}
         <div className="min-w-0 flex-1 space-y-4">
+          {/* print do perfil — referência visual ao lado dos campos */}
+          <section className="ds-card p-4">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-heading-sm">Print do perfil (opcional)</h3>
+                <p className="mt-0.5 text-caption text-mute">
+                  Suba o print e ele fica fixo aqui do lado enquanto você preenche — e serve pras
+                  conferências de foto e grid lá embaixo.
+                </p>
+              </div>
+              <label className="shrink-0 cursor-pointer rounded-md border border-hairline bg-surface px-3 py-1.5 text-label-md text-ink transition-colors hover:border-hairline-strong">
+                {print ? 'Trocar' : 'Subir print'}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const f = e.target.files?.[0]
+                    if (f) setPrint(await arquivoParaDataUrl(f, 1400))
+                    e.target.value = ''
+                  }}
+                />
+              </label>
+            </div>
+            {print && (
+              <div className="mt-3 flex items-start gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={print}
+                  alt="Print do perfil analisado"
+                  className="max-h-[420px] w-auto rounded-md border border-hairline"
+                />
+                <button
+                  onClick={() => setPrint(null)}
+                  className="text-caption text-faint hover:text-danger-deep"
+                >
+                  remover
+                </button>
+              </div>
+            )}
+          </section>
+
           <section className="ds-card p-4">
             <h3 className="text-heading-sm">De quem é o perfil?</h3>
             <p className="mt-0.5 text-caption text-mute">
@@ -308,7 +350,16 @@ export default function Diagnostico() {
             <>
               <ProximoPasso regra={avaliacao.proximoPasso} />
               <NotasPorBloco avaliacao={avaliacao} pendentes={pendentes} />
-              <ListaDeProblemas violadas={avaliacao.violadas} />
+              <PontosFortes acertos={avaliacao.acertos} />
+              <div>
+                <h3 className="text-label-lg text-ink">O que precisa melhorar</h3>
+                <p className="mt-0.5 text-caption text-mute">
+                  Em ordem de impacto — cada item traz o motivo e a fórmula pra resolver.
+                </p>
+                <div className="mt-3">
+                  <ListaDeProblemas violadas={avaliacao.violadas} />
+                </div>
+              </div>
               <div>
                 <h3 className="text-label-lg text-ink">Confira você mesmo, olhando o perfil</h3>
                 <p className="mt-0.5 text-caption text-mute">

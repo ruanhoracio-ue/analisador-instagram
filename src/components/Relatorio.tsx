@@ -5,7 +5,7 @@
  */
 import type { Avaliacao, Bloco, Regra } from '@/engine/tipos'
 import { BLOCOS } from '@/engine/tipos'
-import { SelfCheck } from './Avisos'
+import { ComoResolver, SelfCheck } from './Avisos'
 
 export const NOME_BLOCO: Record<Bloco, string> = {
   foto: 'Foto',
@@ -81,6 +81,7 @@ export function ProximoPasso({
         <>
           <p className="mt-2 text-heading-md text-ink">{regra.mensagem}</p>
           <p className="mt-1 text-body-md text-mute">{regra.porque}</p>
+          <ComoResolver regra={regra} tom="escuro" />
           {acao && <div className="mt-4">{acao}</div>}
         </>
       ) : (
@@ -88,6 +89,41 @@ export function ProximoPasso({
           Nada crítico em aberto — o perfil está coerente com o objetivo. 🎉
         </p>
       )}
+    </div>
+  )
+}
+
+/** O que já está certo — ensina o acerto, não só o erro */
+export function PontosFortes({ acertos }: { acertos: Regra[] }) {
+  if (acertos.length === 0) return null
+  return (
+    <div className="rounded-xl border border-hairline bg-surface p-4">
+      <h3 className="flex items-center gap-2 text-label-lg text-success-deep">
+        <span className="h-1.5 w-1.5 rounded-full bg-success" />
+        O que já está funcionando
+        <span className="text-mute">({acertos.length})</span>
+      </h3>
+      <ul className="mt-2 space-y-1.5">
+        {acertos.map((r) => (
+          <li key={r.id} className="flex gap-2 text-body-sm text-body">
+            <svg
+              className="mt-1 h-3 w-3 shrink-0 text-success"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3.2"
+            >
+              <path d="m5 13 4 4L19 7" />
+            </svg>
+            <span>
+              <span className="text-caption uppercase tracking-label text-faint">
+                {NOME_BLOCO[r.bloco]}
+              </span>{' '}
+              {r.elogio}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
@@ -119,15 +155,17 @@ export function ListaDeProblemas({ violadas }: { violadas: Regra[] }) {
               <span className="text-mute">({doGrupo.length})</span>
             </h3>
             <div className="mt-2 space-y-2">
-              {doGrupo.map((r) => (
+              {doGrupo.map((r, i) => (
                 <div key={r.id} className="ds-card p-4">
                   <div className="flex items-baseline gap-2">
+                    <span className="text-caption tabular-nums text-faint">{i + 1}.</span>
                     <span className="text-caption uppercase tracking-label text-faint">
                       {NOME_BLOCO[r.bloco]}
                     </span>
                     <span className="text-body-md font-medium text-ink">{r.mensagem}</span>
                   </div>
                   <p className="mt-1 text-body-sm text-mute">{r.porque}</p>
+                  <ComoResolver regra={r} />
                 </div>
               ))}
             </div>

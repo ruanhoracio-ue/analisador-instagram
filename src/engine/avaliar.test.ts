@@ -46,6 +46,36 @@ describe('formato das regras', () => {
     const ids = REGRAS.map((r) => r.id)
     expect(new Set(ids).size).toBe(ids.length)
   })
+
+  it('toda regra diz como resolver', () => {
+    for (const r of REGRAS) {
+      expect(r.comoResolver?.trim(), r.id).toBeTruthy()
+    }
+  })
+
+  it('só regras auto trazem elogio (self-check não passa nem falha sozinha)', () => {
+    for (const r of REGRAS) {
+      if (r.elogio) expect(r.kind, r.id).toBe('auto')
+    }
+  })
+})
+
+describe('pontos fortes', () => {
+  it('perfil coerente acumula acertos', () => {
+    const av = avaliar(perfilBom())
+    expect(av.acertos.length).toBeGreaterThan(0)
+    expect(av.acertos.every((r) => r.elogio)).toBe(true)
+  })
+
+  it('perfil vazio não ganha elogio — não há o que elogiar', () => {
+    expect(avaliar(perfilVazio()).acertos).toHaveLength(0)
+  })
+
+  it('a mesma regra nunca é acerto e violação ao mesmo tempo', () => {
+    const av = avaliar(perfilBom())
+    const violados = new Set(av.violadas.map((r) => r.id))
+    expect(av.acertos.some((r) => violados.has(r.id))).toBe(false)
+  })
 })
 
 describe('objetivo como eixo', () => {

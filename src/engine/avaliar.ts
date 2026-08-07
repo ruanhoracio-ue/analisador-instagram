@@ -44,6 +44,11 @@ export function avaliar(
 
   const violadas = aplicaveis.filter((r) => r.kind === 'auto' && r.condicao!(perfil))
   const checks = aplicaveis.filter((r) => r.kind === 'self-check')
+  /* o que já está certo — só as regras que trazem elogio, e só se o campo
+     relevante saiu do zero (elogiar um perfil vazio não ensina nada) */
+  const acertos = aplicaveis.filter(
+    (r) => r.kind === 'auto' && r.elogio && !r.condicao!(perfil) && temConteudo(perfil, r.bloco),
+  )
 
   /* Nota por bloco: parte de 10 e perde proporcionalmente ao peso das regras
      violadas sobre o peso total aplicável ao bloco. Self-check não confirmado
@@ -83,7 +88,29 @@ export function avaliar(
     checks.filter((r) => !confirmados.has(r.id)).sort(ordenar)[0] ??
     null
 
-  return { violadas, checks, notas, proximoPasso }
+  return { violadas, acertos, checks, notas, proximoPasso }
+}
+
+/** o bloco tem algo preenchido? — evita elogiar campo em branco */
+function temConteudo(p: Perfil, bloco: Bloco): boolean {
+  switch (bloco) {
+    case 'foto':
+      return Boolean(p.foto)
+    case 'nome':
+      return p.nome.trim() !== ''
+    case 'usuario':
+      return p.usuario.trim() !== ''
+    case 'bio':
+      return p.bio.trim() !== ''
+    case 'link':
+      return p.bio.trim() !== '' || p.link.trim() !== '' || p.ctaBotao.trim() !== ''
+    case 'destaques':
+      return p.destaques.some((d) => d.nome.trim() !== '')
+    case 'grid':
+      return p.grid.some((g) => g.imagem)
+    case 'fixados':
+      return p.fixados.some((f) => f.papel || f.titulo?.trim() || f.imagem)
+  }
 }
 
 /** violações e checks de um bloco específico — usado pela UI campo a campo */
