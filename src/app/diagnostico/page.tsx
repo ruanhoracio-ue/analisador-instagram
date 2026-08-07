@@ -14,6 +14,7 @@ import { avaliar } from '@/engine/avaliar'
 import type { Objetivo, Perfil, Tipo } from '@/engine/tipos'
 import { OBJETIVOS, TIPOS } from '@/engine/tipos'
 import { estadoInicial } from '@/lib/estado'
+import { Logo } from '@/components/Logo'
 import { Contador } from '@/components/PreviewInstagram'
 import {
   ListaDeChecks,
@@ -157,9 +158,12 @@ export default function Diagnostico() {
   return (
     <main className="mx-auto max-w-[1100px] px-6 pb-24">
       <header className="sticky top-0 z-40 -mx-6 mb-8 flex items-center justify-between border-b border-hairline bg-canvas/80 px-6 py-3 backdrop-blur">
-        <Link href="/" className="text-label-lg font-semibold text-ink hover:text-emerald-deep">
-          ← Diagnóstico de perfil
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/" className="shrink-0 transition-opacity hover:opacity-70" title="Voltar ao início">
+            <Logo className="h-4" />
+          </Link>
+          <span className="text-label-lg font-semibold text-ink">Diagnóstico de perfil</span>
+        </div>
         <span className="text-caption text-faint">o mesmo motor do construtor</span>
       </header>
 

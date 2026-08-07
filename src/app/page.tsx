@@ -1,13 +1,12 @@
 import Link from 'next/link'
+import { Logo } from '@/components/Logo'
 
 /** Home — os dois módulos, independentes: diagnóstico olha pra trás, construtor olha pra frente. */
 export default function Home() {
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-16">
-      <p className="text-eyebrow uppercase tracking-[0.06em] font-semibold text-emerald-deep">
-        Conversão Extrema
-      </p>
-      <h1 className="mt-2 text-heading-xl">
+      <Logo className="h-6" />
+      <h1 className="mt-6 text-heading-xl">
         Seu perfil, coerente com o <span className="text-brand-gradient">seu objetivo</span>
       </h1>
       <p className="mt-3 max-w-xl text-body-lg text-mute">

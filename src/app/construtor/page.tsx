@@ -5,6 +5,7 @@
  */
 import { useMemo } from 'react'
 import Link from 'next/link'
+import { Logo } from '@/components/Logo'
 import { avaliar } from '@/engine/avaliar'
 import { useEstado } from '@/lib/estado'
 import { Abertura } from '@/components/Abertura'
@@ -46,9 +47,10 @@ export default function Pagina() {
         <nav className="flex items-center gap-1 overflow-x-auto">
           <Link
             href="/"
-            className="mr-3 hidden whitespace-nowrap text-label-lg font-semibold text-ink hover:text-emerald-deep sm:block"
+            className="mr-4 hidden shrink-0 transition-opacity hover:opacity-70 sm:block"
+            title="Voltar ao início"
           >
-            ← Construtor
+            <Logo className="h-4" />
           </Link>
           {PASSOS.map((nome, i) => {
             const ativo = passo === i
