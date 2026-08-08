@@ -64,6 +64,51 @@ export function extrairUsuario(entrada: string): string | null {
 
 const VERSAO = 'v21.0'
 
+/**
+ * Descobre o ID da conta Instagram profissional a partir do próprio token.
+ *
+ * Existe pra poupar quem configura: o ID é derivável do token, então pedir
+ * os dois é pedir duas vezes a mesma coisa — e é justo aí que a configuração
+ * costuma quebrar, com o ID errado colado no lugar certo.
+ */
+export async function descobrirContaId(
+  token: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<string> {
+  const url =
+    `https://graph.facebook.com/${VERSAO}/me/accounts` +
+    `?fields=instagram_business_account{id,username}&access_token=${encodeURIComponent(token)}`
+
+  let resposta: Response
+  try {
+    resposta = await fetchImpl(url, { headers: { accept: 'application/json' } })
+  } catch {
+    throw new ErroCaptura(
+      'erro-instagram',
+      'não foi possível falar com o Instagram',
+      'Tente de novo em instantes — ou preencha os campos na mão.',
+    )
+  }
+
+  const dados = (await resposta.json().catch(() => ({}))) as {
+    data?: { instagram_business_account?: { id?: string } }[]
+    error?: NonNullable<RespostaBD['error']>
+  }
+
+  if (dados.error) throw traduzirErro(dados.error, '')
+
+  const id = dados.data?.find((p) => p.instagram_business_account?.id)?.instagram_business_account
+    ?.id
+  if (!id) {
+    throw new ErroCaptura(
+      'sem-configuracao',
+      'nenhuma conta Instagram profissional ligada a este acesso',
+      'A conta do Instagram precisa ser Comercial ou Criador e estar conectada a uma Página do Facebook. Veja o DEPLOY.md.',
+    )
+  }
+  return id
+}
+
 interface RespostaBD {
   business_discovery?: {
     username?: string

@@ -34,7 +34,7 @@ Se não tiver uma Página, crie uma vazia — ela só serve de ponte.
 2. Tipo: **Empresa (Business)**
 3. Adicione o produto **Instagram Graph API**
 
-### 4. Gere o token e descubra o ID da conta
+### 4. Gere o token
 1. Abra o **Graph API Explorer**: <https://developers.facebook.com/tools/explorer>
 2. Selecione seu app e adicione as permissões:
    - `instagram_basic`
@@ -42,11 +42,10 @@ Se não tiver uma Página, crie uma vazia — ela só serve de ponte.
    - `pages_read_engagement`
    - `business_management`
 3. Clique em **Generate Access Token** e autorize
-4. Rode esta consulta para achar o ID da sua conta Instagram:
-   ```
-   me/accounts?fields=instagram_business_account{id,username}
-   ```
-   Anote o `id` que aparecer dentro de `instagram_business_account`.
+
+> Não é preciso anotar o ID da conta: o app descobre sozinho, a partir do
+> próprio token. (Se quiser fixar um ID específico — útil se o acesso enxerga
+> várias contas — use a variável opcional `IG_BUSINESS_ACCOUNT_ID`.)
 
 ### 5. Troque por um token de longa duração
 O token do Explorer expira em ~1h. Para um de ~60 dias:
@@ -64,20 +63,22 @@ GET https://graph.facebook.com/v21.0/oauth/access_token
 > Repita este passo para renovar.
 
 ### 6. Configure na Vercel
-No painel da Vercel: **Settings → Environment Variables**, adicione:
+No painel da Vercel: **Settings → Environment Variables**, adicione **uma** variável:
 
 | Nome | Valor |
 | :--- | :--- |
-| `IG_BUSINESS_ACCOUNT_ID` | o `id` do passo 4 |
 | `IG_ACCESS_TOKEN` | o token longo do passo 5 |
 
-Depois clique em **Redeploy** para o app pegar as variáveis.
+Marque Production, Preview e Development. Depois clique em **Redeploy** para o
+app pegar a variável.
+
+*(Opcional: `IG_BUSINESS_ACCOUNT_ID` para fixar uma conta específica, caso o
+acesso enxergue várias.)*
 
 ### Para testar local
 Crie um arquivo `.env.local` na raiz do projeto (ele já está no `.gitignore`):
 
 ```
-IG_BUSINESS_ACCOUNT_ID=178414...
 IG_ACCESS_TOKEN=EAAG...
 ```
 

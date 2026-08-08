@@ -5,11 +5,24 @@
  * Devolve o perfil normalizado ou um erro com uma saída acionável.
  */
 import { NextResponse } from 'next/server'
-import { buscarPerfil, ErroCaptura, extrairUsuario } from '@/lib/instagram'
+import { buscarPerfil, descobrirContaId, ErroCaptura, extrairUsuario } from '@/lib/instagram'
 
 export const runtime = 'nodejs'
 /* a captura consulta o Instagram a cada chamada — nada de cache de rota */
 export const dynamic = 'force-dynamic'
+
+/* o ID da conta é derivado do token uma vez e reaproveitado enquanto a
+   instância viver — é uma chamada a menos por análise */
+let contaIdEmCache: { token: string; id: string } | null = null
+
+async function resolverContaId(token: string): Promise<string> {
+  const configurado = process.env.IG_BUSINESS_ACCOUNT_ID
+  if (configurado) return configurado
+  if (contaIdEmCache?.token === token) return contaIdEmCache.id
+  const id = await descobrirContaId(token)
+  contaIdEmCache = { token, id }
+  return id
+}
 
 export async function GET(request: Request) {
   const entrada = new URL(request.url).searchParams.get('conta') ?? ''
@@ -26,10 +39,9 @@ export async function GET(request: Request) {
     )
   }
 
-  const contaId = process.env.IG_BUSINESS_ACCOUNT_ID
   const token = process.env.IG_ACCESS_TOKEN
 
-  if (!contaId || !token) {
+  if (!token) {
     return NextResponse.json(
       {
         tipo: 'sem-configuracao',
@@ -41,6 +53,7 @@ export async function GET(request: Request) {
   }
 
   try {
+    const contaId = await resolverContaId(token)
     const perfil = await buscarPerfil(usuario, contaId, token)
     return NextResponse.json(perfil, {
       headers: { 'cache-control': 'no-store' },

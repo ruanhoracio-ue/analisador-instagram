@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buscarPerfil, ErroCaptura, extrairUsuario } from './instagram'
+import { buscarPerfil, descobrirContaId, ErroCaptura, extrairUsuario } from './instagram'
 
 describe('extrairUsuario', () => {
   it('aceita as formas que a pessoa tem na mão', () => {
@@ -87,6 +87,37 @@ describe('buscarPerfil', () => {
     await expect(buscarPerfil('x', '123', 'tok', fetchFalso({}))).rejects.toMatchObject({
       tipo: 'nao-encontrado',
     })
+  })
+})
+
+describe('descobrirContaId', () => {
+  it('acha o id da conta profissional a partir do token', async () => {
+    const id = await descobrirContaId(
+      'tok',
+      fetchFalso({ data: [{ instagram_business_account: { id: '17841400000000000' } }] }),
+    )
+    expect(id).toBe('17841400000000000')
+  })
+
+  it('ignora páginas sem Instagram ligado e pega a primeira que tem', async () => {
+    const id = await descobrirContaId(
+      'tok',
+      fetchFalso({ data: [{}, {}, { instagram_business_account: { id: '999' } }] }),
+    )
+    expect(id).toBe('999')
+  })
+
+  it('nenhuma conta profissional ligada vira orientação, não erro cru', async () => {
+    const erro = await descobrirContaId('tok', fetchFalso({ data: [] })).catch((e) => e)
+    expect(erro).toBeInstanceOf(ErroCaptura)
+    expect(erro.tipo).toBe('sem-configuracao')
+    expect(erro.saida).toMatch(/Comercial|Criador/)
+  })
+
+  it('token inválido é reconhecido também aqui', async () => {
+    await expect(
+      descobrirContaId('tok', fetchFalso({ error: { code: 190, message: 'expired' } })),
+    ).rejects.toMatchObject({ tipo: 'token-invalido' })
   })
 })
 
