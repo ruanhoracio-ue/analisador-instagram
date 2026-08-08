@@ -4,3 +4,8 @@ out/
 *.tsbuildinfo
 next-env.d.ts
 .DS_Store
+
+# variáveis de ambiente (tokens)
+.env
+.env.local
+.env*.local

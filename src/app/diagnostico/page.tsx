@@ -16,7 +16,7 @@ import { OBJETIVOS, TIPOS } from '@/engine/tipos'
 import { estadoInicial } from '@/lib/estado'
 import { Logo } from '@/components/Logo'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { Contador } from '@/components/PreviewInstagram'
+import { Contador, PreviewInstagram } from '@/components/PreviewInstagram'
 import {
   ListaDeChecks,
   ListaDeProblemas,
@@ -92,6 +92,14 @@ export default function Diagnostico() {
   const [dados, setDados] = useState<Dados>(DADOS_INICIAIS)
   const [pronto, setPronto] = useState(false)
   const [print, setPrint] = useState<string | null>(null)
+  const [puxando, setPuxando] = useState(false)
+  const [captura, setCaptura] = useState<{ ok: boolean; mensagem: string; saida?: string } | null>(
+    null,
+  )
+  /* imagens vindas da captura — ficam só na memória: são URLs do CDN do
+     Instagram, que expiram, então não vale persistir */
+  const [fotoCapturada, setFotoCapturada] = useState<string | null>(null)
+  const [miniaturas, setMiniaturas] = useState<string[]>([])
 
   useEffect(() => {
     try {
@@ -111,6 +119,49 @@ export default function Diagnostico() {
 
   const mudar = <K extends keyof Dados>(campo: K, valor: Dados[K]) =>
     setDados((d) => ({ ...d, [campo]: valor }))
+
+  /**
+   * Puxa o perfil pela API oficial e preenche os campos. Falhar aqui nunca é
+   * beco sem saída: os campos continuam editáveis e a análise sai igual.
+   */
+  async function puxarPerfil() {
+    if (!dados.usuario.trim() || puxando) return
+    setPuxando(true)
+    setCaptura(null)
+    try {
+      const r = await fetch(`/api/perfil?conta=${encodeURIComponent(dados.usuario)}`)
+      const corpo = await r.json()
+      if (!r.ok) {
+        setCaptura({ ok: false, mensagem: corpo.mensagem ?? 'não deu pra puxar', saida: corpo.saida })
+        return
+      }
+      setDados((d) => ({
+        ...d,
+        usuario: corpo.usuario,
+        nome: corpo.nome,
+        bio: corpo.bio,
+        link: corpo.link,
+        temFoto: Boolean(corpo.foto),
+        tem9Posts: (corpo.posts ?? 0) >= 9,
+      }))
+      if (corpo.foto) setFotoCapturada(corpo.foto)
+      if (corpo.miniaturas?.length) setMiniaturas(corpo.miniaturas)
+      setCaptura({
+        ok: true,
+        mensagem: `Perfil de @${corpo.usuario} carregado.`,
+        saida:
+          'Destaques e fixados a API não entrega — marque abaixo o que você vê no perfil.',
+      })
+    } catch {
+      setCaptura({
+        ok: false,
+        mensagem: 'não consegui falar com o servidor',
+        saida: 'Preencha os campos na mão que a análise sai do mesmo jeito.',
+      })
+    } finally {
+      setPuxando(false)
+    }
+  }
 
   /* o perfil que o motor recebe — o mesmo formato do construtor */
   const perfil: Perfil = useMemo(
@@ -193,6 +244,44 @@ export default function Diagnostico() {
       <div className="flex flex-col gap-10 lg:flex-row">
         {/* ── entrada — acompanha a rolagem do relatório no desktop ─── */}
         <div className="no-print min-w-0 flex-1 space-y-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-1">
+          {/* o perfil como ele é: o capturado, ou o print que a pessoa subiu */}
+          {fotoCapturada || miniaturas.length > 0 ? (
+            <section className="ds-card p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-heading-sm">O perfil analisado</h3>
+                  <p className="mt-0.5 text-caption text-mute">
+                    Puxado do Instagram — confira a foto no círculo de 40px e o grid em tamanho real.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setFotoCapturada(null)
+                    setMiniaturas([])
+                  }}
+                  className="shrink-0 text-caption text-faint hover:text-danger-deep"
+                >
+                  limpar
+                </button>
+              </div>
+              <div className="mt-3 flex justify-center">
+                <PreviewInstagram
+                  foto={fotoCapturada ?? undefined}
+                  nome={dados.nome}
+                  usuario={dados.usuario}
+                  bio={dados.bio}
+                  link={dados.link}
+                  ctaBotao={dados.ctaBotao}
+                  destaques={Array.from({ length: Math.max(dados.qtdDestaques, 0) }, () => ({
+                    nome: '',
+                  }))}
+                  grid={Array.from({ length: 9 }, (_, i) => miniaturas[i])}
+                  mostrarMini
+                />
+              </div>
+            </section>
+          ) : null}
+
           {/* print do perfil — referência visual ao lado dos campos */}
           <section className="ds-card p-4">
             <div className="flex items-start justify-between gap-4">
@@ -238,18 +327,44 @@ export default function Diagnostico() {
           <section className="ds-card p-4">
             <h3 className="text-heading-sm">De quem é o perfil?</h3>
             <p className="mt-0.5 text-caption text-mute">
-              Abra o perfil no Instagram e copie o que ele mostra — funciona pro seu e pro de
-              qualquer concorrente.
+              Cole o @ ou o link e puxe os dados — ou preencha na mão, logo abaixo.
             </p>
-            <div className="relative mt-3">
-              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint">@</span>
-              <input
-                className={`${CAMPO} pl-7`}
-                placeholder="usuario_analisado"
-                value={dados.usuario}
-                onChange={(e) => mudar('usuario', e.target.value.replace(/\s/g, ''))}
-              />
+            <div className="mt-3 flex gap-2">
+              <div className="relative flex-1">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint">
+                  @
+                </span>
+                <input
+                  className={`${CAMPO} pl-7`}
+                  placeholder="usuario ou instagram.com/usuario"
+                  value={dados.usuario}
+                  onChange={(e) => mudar('usuario', e.target.value.trim())}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') puxarPerfil()
+                  }}
+                />
+              </div>
+              <button
+                onClick={puxarPerfil}
+                disabled={puxando || !dados.usuario.trim()}
+                className="shrink-0 rounded-md border border-hairline bg-surface px-4 py-2 text-label-md text-ink transition-colors hover:border-hairline-strong disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {puxando ? 'Puxando…' : 'Puxar dados'}
+              </button>
             </div>
+
+            {captura && (
+              <div
+                className={`mt-2 rounded-md border-l-2 px-3 py-2 ${
+                  captura.ok
+                    ? 'border-emerald-400 bg-emerald-soft/40'
+                    : 'border-warning bg-warning-soft/40'
+                }`}
+              >
+                <p className="text-body-sm font-medium text-ink">{captura.mensagem}</p>
+                {captura.saida && <p className="mt-0.5 text-caption text-mute">{captura.saida}</p>}
+              </div>
+            )}
 
             <div className="mt-4 flex flex-wrap gap-1.5">
               {TIPOS.map((t) => (
