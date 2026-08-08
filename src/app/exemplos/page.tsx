@@ -22,7 +22,7 @@ export default function Exemplos() {
     <main className="mx-auto max-w-[1100px] px-6 pb-24">
       <header className="sticky top-0 z-40 -mx-6 mb-8 flex items-center justify-between border-b border-hairline bg-canvas/95 px-6 py-3 backdrop-blur">
         <Link href="/" className="shrink-0 transition-opacity hover:opacity-70" title="Voltar ao início">
-          <Logo className="h-7" />
+          <Logo className="h-5" />
         </Link>
         <ThemeToggle />
       </header>

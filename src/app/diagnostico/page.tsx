@@ -163,7 +163,7 @@ export default function Diagnostico() {
     <main className="mx-auto max-w-[1100px] px-6 pb-24">
       <header className="no-print sticky top-0 z-40 -mx-6 mb-8 flex items-center justify-between gap-3 border-b border-hairline bg-canvas/95 px-6 py-3 backdrop-blur">
         <Link href="/" className="shrink-0 transition-opacity hover:opacity-70" title="Voltar ao início">
-          <Logo className="h-7" />
+          <Logo className="h-5" />
         </Link>
         <div className="flex shrink-0 items-center gap-2">
           {comecou && (
@@ -182,7 +182,7 @@ export default function Diagnostico() {
       <div className="mb-6 hidden print:block">
         <Logo className="h-6" />
         <h1 className="mt-3 text-heading-md">
-          Diagnóstico de perfil {dados.usuario && `— @${dados.usuario.replace(/^@/, '')}`}
+          Análise do perfil {dados.usuario && `— @${dados.usuario.replace(/^@/, '')}`}
         </h1>
         <p className="mt-0.5 text-body-sm text-mute">
           Objetivo analisado: {OBJETIVOS.find((o) => o.id === dados.objetivo)?.rotulo} ·{' '}
