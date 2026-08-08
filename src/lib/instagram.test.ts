@@ -126,6 +126,12 @@ describe('tradução dos erros da Graph API', () => {
     ['token expirado', { error: { code: 190, message: 'Session has expired' } }, 'token-invalido'],
     ['limite de chamadas', { error: { code: 4, message: 'rate limit' } }, 'limite-excedido'],
     [
+      'token sem permissões',
+      { error: { code: 10, message: 'Application does not have permission for this action' } },
+      'permissao-faltando',
+    ],
+    ['permissão ausente (200)', { error: { code: 200, message: 'Permissions error' } }, 'permissao-faltando'],
+    [
       'alvo não é conta profissional',
       { error: { code: 110, message: 'Object does not exist' } },
       'nao-profissional',

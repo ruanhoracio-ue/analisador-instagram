@@ -28,6 +28,7 @@ export type FalhaCaptura =
   | 'nao-encontrado'
   | 'nao-profissional'
   | 'token-invalido'
+  | 'permissao-faltando'
   | 'limite-excedido'
   | 'erro-instagram'
 
@@ -200,6 +201,16 @@ function traduzirErro(erro: NonNullable<RespostaBD['error']>, usuarioAlvo: strin
       'token-invalido',
       'token do Instagram inválido ou expirado',
       'O acesso ao Instagram precisa ser renovado nas configurações. Enquanto isso, preencha os campos na mão.',
+    )
+  }
+  /* 10 e 200 = o token existe e é válido, mas não carrega as permissões da
+     chamada. É o tropeço mais comum: o Graph API Explorer gera o token sem
+     permissão nenhuma se elas não forem marcadas ANTES de gerar. */
+  if (code === 10 || code === 200 || /permission/i.test(message)) {
+    return new ErroCaptura(
+      'permissao-faltando',
+      'o acesso ao Instagram está sem as permissões necessárias',
+      'Gere o token de novo marcando instagram_basic, pages_show_list, pages_read_engagement e business_management antes de clicar em Generate. Veja o DEPLOY.md.',
     )
   }
   if (code === 4 || code === 17 || code === 32 || code === 613) {
