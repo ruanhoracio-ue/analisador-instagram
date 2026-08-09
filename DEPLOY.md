@@ -38,10 +38,18 @@ Se não tiver uma Página, crie uma vazia — ela só serve de ponte.
 1. Abra o **Graph API Explorer**: <https://developers.facebook.com/tools/explorer>
 2. Selecione seu app e adicione as permissões:
    - `instagram_basic`
+   - **`instagram_manage_insights`** ← exigida pelo Business Discovery
    - `pages_show_list`
    - `pages_read_engagement`
-   - `business_management`
 3. Clique em **Generate Access Token** e autorize
+
+> ⚠️ Marque as permissões **antes** de clicar em Generate: o token recebe os
+> escopos no momento em que é criado, e a lista na tela é só o pedido.
+>
+> Sem `instagram_manage_insights` a API responde `(#10) Application does not
+> have permission` — o mesmo erro de um token sem escopo nenhum, o que torna
+> a causa difícil de adivinhar. Use o "Conferir a configuração" na tela de
+> análise para ver o que o token realmente carrega.
 
 > Não é preciso anotar o ID da conta: o app descobre sozinho, a partir do
 > próprio token. (Se quiser fixar um ID específico — útil se o acesso enxerga

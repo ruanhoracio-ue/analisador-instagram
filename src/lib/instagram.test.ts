@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   buscarPerfil,
+  PERMISSOES_NECESSARIAS,
   descobrirContaId,
   ErroCaptura,
   extrairUsuario,
@@ -135,16 +136,17 @@ describe('verificarToken', () => {
   it('aponta exatamente quais permissões faltam', async () => {
     const estado = await verificarToken(
       'tok',
-      fetchFalso(concedidas(['pages_show_list', 'business_management'])),
+      fetchFalso(concedidas(['instagram_basic', 'pages_show_list', 'pages_read_engagement'])),
     )
     expect(estado.ok).toBe(false)
-    expect(estado.faltando).toEqual(['instagram_basic', 'pages_read_engagement'])
+    // a que mais escapa: exigida pelo Business Discovery e fácil de esquecer
+    expect(estado.faltando).toEqual(['instagram_manage_insights'])
     expect(estado.diagnostico).toMatch(/Generate Access Token/)
   })
 
-  it('token sem permissão nenhuma lista as quatro', async () => {
+  it('token sem permissão nenhuma lista todas as necessárias', async () => {
     const estado = await verificarToken('tok', fetchFalso({ data: [] }))
-    expect(estado.faltando).toHaveLength(4)
+    expect(estado.faltando).toEqual([...PERMISSOES_NECESSARIAS])
   })
 
   it('separa permissão recusada de permissão ausente', async () => {
@@ -153,13 +155,13 @@ describe('verificarToken', () => {
       fetchFalso({
         data: [
           { permission: 'instagram_basic', status: 'granted' },
-          { permission: 'business_management', status: 'declined' },
+          { permission: 'instagram_manage_insights', status: 'declined' },
         ],
       }),
     )
     expect(estado.concedidas).toContain('instagram_basic')
-    expect(estado.recusadas).toContain('business_management')
-    expect(estado.faltando).toContain('business_management')
+    expect(estado.recusadas).toContain('instagram_manage_insights')
+    expect(estado.faltando).toContain('instagram_manage_insights')
   })
 
   it('com tudo concedido, segue e confirma a conta', async () => {
@@ -168,12 +170,7 @@ describe('verificarToken', () => {
       chamada += 1
       const corpo =
         chamada === 1
-          ? concedidas([
-              'instagram_basic',
-              'pages_show_list',
-              'pages_read_engagement',
-              'business_management',
-            ])
+          ? concedidas([...PERMISSOES_NECESSARIAS])
           : { data: [{ instagram_business_account: { id: '178414' } }] }
       return new Response(JSON.stringify(corpo), { status: 200 })
     }) as unknown as typeof fetch

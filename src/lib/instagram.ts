@@ -65,12 +65,18 @@ export function extrairUsuario(entrada: string): string | null {
 
 const VERSAO = 'v21.0'
 
-/** permissões que o Business Discovery exige do token */
+/**
+ * Permissões que o Business Discovery exige do token.
+ *
+ * `instagram_manage_insights` é a que costuma passar despercebida: sem ela a
+ * Graph API responde o mesmo "(#10) sem permissão" que devolveria para um
+ * token sem escopo nenhum, embora todo o resto esteja concedido.
+ */
 export const PERMISSOES_NECESSARIAS = [
   'instagram_basic',
+  'instagram_manage_insights',
   'pages_show_list',
   'pages_read_engagement',
-  'business_management',
 ] as const
 
 export interface EstadoDoToken {
@@ -307,7 +313,7 @@ function traduzirErro(erro: NonNullable<RespostaBD['error']>, usuarioAlvo: strin
     return new ErroCaptura(
       'permissao-faltando',
       'o acesso ao Instagram está sem as permissões necessárias',
-      'Gere o token de novo marcando instagram_basic, pages_show_list, pages_read_engagement e business_management antes de clicar em Generate. Veja o DEPLOY.md.',
+      'Clique em "Conferir a configuração" abaixo para ver qual permissão falta — a mais esquecida é instagram_manage_insights, exigida pelo Business Discovery.',
     )
   }
   if (code === 4 || code === 17 || code === 32 || code === 613) {
