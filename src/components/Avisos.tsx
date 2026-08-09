@@ -45,7 +45,17 @@ const ESTILO: Record<Severidade, { borda: string; fundo: string; texto: string; 
   },
 }
 
-export function AvisoRegra({ regra }: { regra: Regra }) {
+/** o trecho do perfil que disparou a regra — citado, vira espelho e não bronca */
+export function TrechoCitado({ trecho }: { trecho?: string | null }) {
+  if (!trecho) return null
+  return (
+    <p className="mt-1.5 w-fit max-w-full truncate rounded-sm bg-ink/[0.06] px-2 py-1 font-mono text-caption text-ink">
+      «{trecho}»
+    </p>
+  )
+}
+
+export function AvisoRegra({ regra }: { regra: Regra & { trecho?: string | null } }) {
   const e = ESTILO[regra.severidade]
   return (
     <div className={`rounded-md border-l-2 ${e.borda} ${e.fundo} px-3 py-2`}>
@@ -53,6 +63,7 @@ export function AvisoRegra({ regra }: { regra: Regra }) {
         <span className={`text-[10px] font-semibold uppercase tracking-label ${e.texto}`}>{e.selo}</span>
         <span className="text-body-sm font-medium text-ink">{regra.mensagem}</span>
       </div>
+      <TrechoCitado trecho={regra.trecho} />
       <p className="mt-0.5 text-caption text-mute">{regra.porque}</p>
       <ComoResolver regra={regra} />
     </div>

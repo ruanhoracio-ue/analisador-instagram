@@ -5,7 +5,7 @@
  */
 import type { Avaliacao, Bloco, Regra } from '@/engine/tipos'
 import { BLOCOS } from '@/engine/tipos'
-import { ComoResolver, SelfCheck } from './Avisos'
+import { ComoResolver, SelfCheck, TrechoCitado } from './Avisos'
 
 export const NOME_BLOCO: Record<Bloco, string> = {
   foto: 'Foto',
@@ -81,6 +81,7 @@ export function ProximoPasso({
       {regra ? (
         <>
           <p className="mt-2 text-heading-md text-ink">{regra.mensagem}</p>
+          <TrechoCitado trecho={(regra as Regra & { trecho?: string | null }).trecho} />
           <p className="mt-1 text-body-md text-mute">{regra.porque}</p>
           <ComoResolver regra={regra} tom="escuro" />
           {acao && <div className="mt-4">{acao}</div>}
@@ -165,6 +166,7 @@ export function ListaDeProblemas({ violadas }: { violadas: Regra[] }) {
                     </span>
                     <span className="text-body-md font-medium text-ink">{r.mensagem}</span>
                   </div>
+                  <TrechoCitado trecho={(r as Regra & { trecho?: string | null }).trecho} />
                   <p className="mt-1 text-body-sm text-mute">{r.porque}</p>
                   <ComoResolver regra={r} />
                 </div>

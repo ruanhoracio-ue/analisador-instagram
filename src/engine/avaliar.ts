@@ -3,7 +3,7 @@
  * Puro, sem React — plugável no construtor hoje e no diagnóstico amanhã.
  */
 import { REGRAS } from '@/data/regras'
-import type { Avaliacao, Bloco, Perfil, Regra, Severidade } from './tipos'
+import type { Avaliacao, Bloco, Perfil, Regra, RegraViolada, Severidade } from './tipos'
 import { BLOCOS } from './tipos'
 
 /** peso de cada severidade no cálculo da nota por bloco */
@@ -42,7 +42,9 @@ export function avaliar(
 ): Avaliacao {
   const aplicaveis = regrasAplicaveis(perfil, regras)
 
-  const violadas = aplicaveis.filter((r) => r.kind === 'auto' && r.condicao!(perfil))
+  const violadas = aplicaveis
+    .filter((r) => r.kind === 'auto' && r.condicao!(perfil))
+    .map((r) => ({ ...r, trecho: r.evidencia?.(perfil) ?? null }))
   const checks = aplicaveis.filter((r) => r.kind === 'self-check')
   /* o que já está certo — só as regras que trazem elogio, e só se o campo
      relevante saiu do zero (elogiar um perfil vazio não ensina nada) */
@@ -83,7 +85,7 @@ export function avaliar(
      arquivo de regras (impacto). Sem violação auto, cai no primeiro
      self-check não confirmado. Uma mudança por vez — lista longa trava. */
   const ordenar = (a: Regra, b: Regra) => RANK[a.severidade] - RANK[b.severidade]
-  const proximoPasso =
+  const proximoPasso: RegraViolada | Regra | null =
     [...violadas].sort(ordenar)[0] ??
     checks.filter((r) => !confirmados.has(r.id)).sort(ordenar)[0] ??
     null

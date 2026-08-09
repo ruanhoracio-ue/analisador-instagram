@@ -40,6 +40,9 @@ interface Dados {
   temFixados: boolean
   tem9Posts: boolean
   confirmados: string[]
+  /** vindos da captura automática; ausentes na entrada manual */
+  seguidores?: number
+  totalPosts?: number
 }
 
 const CHAVE = 'diagnostico:v1'
@@ -159,6 +162,8 @@ export default function Diagnostico() {
         link: corpo.link,
         temFoto: Boolean(corpo.foto),
         tem9Posts: (corpo.posts ?? 0) >= 9,
+        seguidores: corpo.seguidores ?? undefined,
+        totalPosts: corpo.posts ?? undefined,
       }))
       if (corpo.foto) setFotoCapturada(corpo.foto)
       if (corpo.miniaturas?.length) setMiniaturas(corpo.miniaturas)
@@ -196,6 +201,8 @@ export default function Diagnostico() {
       fixados: dados.temFixados
         ? [{ titulo: '—' }, { titulo: '—' }, { titulo: '—' }]
         : [{}, {}, {}],
+      seguidores: dados.seguidores,
+      totalPosts: dados.totalPosts,
     }),
     [dados],
   )

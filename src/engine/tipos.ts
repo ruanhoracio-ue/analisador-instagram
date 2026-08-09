@@ -56,6 +56,9 @@ export interface Perfil {
   grid: ItemGrid[]
   /** 3 posts fixados */
   fixados: Fixado[]
+  /** números que só a captura automática traz — ausentes na entrada manual */
+  seguidores?: number
+  totalPosts?: number
 }
 
 export interface Regra {
@@ -73,6 +76,12 @@ export interface Regra {
   kind: 'auto' | 'self-check'
   /** true = regra VIOLADA. Presente apenas nas regras 'auto'. */
   condicao?: (p: Perfil) => boolean
+  /**
+   * O trecho DO PERFIL que disparou a regra — citar o que a pessoa escreveu
+   * é o que separa "sua bio é genérica" de "«transformando vidas» é genérico".
+   * Devolve null quando não há trecho a destacar.
+   */
+  evidencia?: (p: Perfil) => string | null
   /** o que está errado, curto e direto */
   mensagem: string
   /** a razão, em uma frase, em linguagem simples — nunca sai sem ela */
@@ -88,9 +97,18 @@ export interface Regra {
   elogio?: string
 }
 
+/**
+ * Regra violada + o trecho do perfil que a disparou. Estende Regra, então
+ * tudo que já lia uma Regra continua valendo.
+ */
+export interface RegraViolada extends Regra {
+  /** o que a pessoa escreveu e fez a regra disparar; null quando não há trecho */
+  trecho: string | null
+}
+
 export interface Avaliacao {
   /** regras 'auto' violadas, na ordem de impacto do arquivo de regras */
-  violadas: Regra[]
+  violadas: RegraViolada[]
   /** regras 'auto' que passaram e têm elogio — o que já está certo */
   acertos: Regra[]
   /** self-checks aplicáveis ao perfil (a UI marca as confirmadas) */

@@ -24,8 +24,11 @@ import {
   apontaParaLink,
   contarEmojis,
   convidaParaDirect,
+  encontrarTrecho,
   linkEhAgregador,
   normContem,
+  PADROES_DIRECT,
+  PADROES_LINK,
   pareceSoNomeProprio,
   primeiraLinha,
   tamanho,
@@ -43,6 +46,7 @@ export const REGRAS: Regra[] = [
     aplicaTipos: 'todos',
     kind: 'auto',
     condicao: (p) => apontaParaLink(p.bio + ' ' + p.ctaBotao),
+    evidencia: (p) => encontrarTrecho(p.bio + ' ' + p.ctaBotao, PADROES_LINK),
     mensagem: 'Você escolheu conversa no direct, mas o perfil empurra pro link.',
     porque:
       'Convite e botão apontando pra lugares diferentes deixam quem chega sem saber o que fazer — e quem não sabe o que fazer não faz nada.',
@@ -75,6 +79,8 @@ export const REGRAS: Regra[] = [
     kind: 'auto',
     condicao: (p) =>
       convidaParaDirect(p.bio + ' ' + p.ctaBotao) && !apontaParaLink(p.bio + ' ' + p.ctaBotao),
+    evidencia: (p) =>
+      encontrarTrecho(p.bio + ' ' + p.ctaBotao, [...PADROES_DIRECT, 'direct', 'dm ', ' dm']),
     mensagem: 'Você quer venda pelo link, mas o perfil chama pro direct.',
     porque:
       'Cada pedido diferente divide a atenção — se a venda é no link, todo convite do perfil precisa apontar pra ele.',
@@ -104,6 +110,7 @@ export const REGRAS: Regra[] = [
     aplicaTipos: 'todos',
     kind: 'auto',
     condicao: (p) => linkEhAgregador(p.link),
+    evidencia: (p) => p.link.trim() || null,
     mensagem: 'Seu link é uma lista de links, não um destino único.',
     porque:
       'Cada opção a mais divide o clique — quem quer vender aponta todo mundo pra uma porta só.',
@@ -152,6 +159,7 @@ export const REGRAS: Regra[] = [
     aplicaTipos: 'todos',
     kind: 'auto',
     condicao: (p) => FRASES_GENERICAS.some((f) => normContem(p.bio, f)),
+    evidencia: (p) => encontrarTrecho(p.bio, FRASES_GENERICAS),
     mensagem: 'Essa frase serviria pra qualquer concorrente seu — então não serve pra você.',
     porque:
       'Se qualquer um do seu ramo pode assinar a frase, ela não diz nada sobre você — o que diferencia é o específico.',
@@ -168,6 +176,10 @@ export const REGRAS: Regra[] = [
     aplicaTipos: 'todos',
     kind: 'auto',
     condicao: (p) => tamanho(p.bio) > 150,
+    evidencia: (p) => {
+      const corte = [...p.bio].slice(150).join('').trim()
+      return corte ? `…${corte}` : null
+    },
     mensagem: 'A bio passou de 150 caracteres — o Instagram corta o resto.',
     porque: 'O que passa do limite simplesmente não é publicado: são 150 e pronto.',
     comoResolver:
@@ -181,6 +193,7 @@ export const REGRAS: Regra[] = [
     aplicaTipos: 'todos',
     kind: 'auto',
     condicao: (p) => tamanho(primeiraLinha(p.bio)) > 60,
+    evidencia: (p) => `${primeiraLinha(p.bio)} (${tamanho(primeiraLinha(p.bio))} caracteres)`,
     mensagem: 'A primeira linha está longa demais.',
     porque:
       'Só a primeira linha aparece antes do "mais" — o essencial precisa caber nela ou fica escondido.',
@@ -197,6 +210,10 @@ export const REGRAS: Regra[] = [
     aplicaTipos: 'todos',
     kind: 'auto',
     condicao: (p) => contarEmojis(p.bio) > 5,
+    evidencia: (p) => {
+      const achados = p.bio.match(/\p{Extended_Pictographic}/gu) ?? []
+      return `${achados.join(' ')} — ${achados.length} emojis`
+    },
     mensagem: 'Emoji demais na bio.',
     porque:
       'Emoji como marcador de linha guia a leitura; emoji decorativo em excesso vira ruído e esconde o texto.',
@@ -256,6 +273,7 @@ export const REGRAS: Regra[] = [
     aplicaTipos: 'todos',
     kind: 'auto',
     condicao: (p) => pareceSoNomeProprio(p.nome),
+    evidencia: (p) => p.nome.trim(),
     mensagem: 'O campo Nome tem só o seu nome — não diz o que você faz.',
     porque:
       'O Nome é o único campo que o Instagram usa na busca — quem procura "nutricionista esportiva" só te acha se estiver escrito ali.',
@@ -272,6 +290,10 @@ export const REGRAS: Regra[] = [
     aplicaTipos: 'todos',
     kind: 'auto',
     condicao: (p) => tamanho(p.nome) > 30,
+    evidencia: (p) => {
+      const corte = [...p.nome].slice(30).join('').trim()
+      return corte ? `…${corte} fica de fora` : null
+    },
     mensagem: 'O Nome passou de 30 caracteres.',
     porque: 'O Instagram corta o que passa de 30 — a parte mais importante pode sumir.',
     comoResolver:
@@ -315,6 +337,7 @@ export const REGRAS: Regra[] = [
     aplicaTipos: 'todos',
     kind: 'auto',
     condicao: (p) => /[_.]|\d/.test(p.usuario),
+    evidencia: (p) => `@${p.usuario}`,
     mensagem: 'Underline, ponto ou número no @ — difícil de ditar e de lembrar.',
     porque:
       'O @ precisa sobreviver ao boca a boca: se a pessoa ouve e não sabe escrever, ela não te encontra.',
@@ -415,6 +438,12 @@ export const REGRAS: Regra[] = [
     aplicaTipos: 'todos',
     kind: 'auto',
     condicao: (p) => p.destaques.some((d) => tamanho(d.nome.trim()) > 10),
+    evidencia: (p) =>
+      p.destaques
+        .map((d) => d.nome.trim())
+        .filter((n) => tamanho(n) > 10)
+        .map((n) => `“${n}”`)
+        .join(' · ') || null,
     mensagem: 'Nome de destaque comprido demais — vai aparecer cortado.',
     porque: 'O espaço embaixo da bolinha é minúsculo: passou de ~10 letras, o Instagram corta com "…".',
     comoResolver: 'Uma palavra por destaque, até 10 letras. Substantivo, não frase.',
@@ -473,6 +502,26 @@ export const REGRAS: Regra[] = [
       'As 9 primeiras são o cartão de visita — quem bate o olho decide se fica antes de ler qualquer legenda.',
     comoResolver:
       'Mostre o print das 9 pra alguém de fora e pergunte "o que essa pessoa faz?". Se errar, falta repetir o tema.',
+  },
+  {
+    /* usa os números da captura automática — na entrada manual (sem
+       totalPosts) simplesmente não dispara */
+    id: 'grid-pouco-conteudo',
+    bloco: 'grid',
+    severidade: 'importante',
+    aplicaObjetivos: 'todos',
+    aplicaTipos: 'todos',
+    kind: 'auto',
+    condicao: (p) => p.totalPosts !== undefined && p.totalPosts < 9,
+    evidencia: (p) =>
+      p.totalPosts !== undefined
+        ? `${p.totalPosts} ${p.totalPosts === 1 ? 'post publicado' : 'posts publicados'}`
+        : null,
+    mensagem: 'O perfil tem menos de 9 posts — o grid nem preenche a primeira tela.',
+    porque:
+      'Quem chega e encontra meia dúzia de posts lê como perfil parado — e perfil parado não ganha seguidor nem venda.',
+    comoResolver:
+      'Antes de qualquer tráfego, complete as 9 primeiras posições: alterne ensina · prova · bastidor · oferta.',
   },
   {
     id: 'grid-incompleto',

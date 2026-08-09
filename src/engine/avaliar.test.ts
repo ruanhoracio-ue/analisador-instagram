@@ -60,6 +60,66 @@ describe('formato das regras', () => {
   })
 })
 
+describe('evidência — a regra cita o que a pessoa escreveu', () => {
+  const acharViolada = (p: Perfil, id: string) =>
+    avaliar(p).violadas.find((r) => r.id === id)
+
+  it('teste do concorrente cita a frase genérica, com os acentos originais', () => {
+    const p = { ...perfilBom(), bio: 'Nutrição de verdade\nTransformando VIDAS através da comida' }
+    expect(acharViolada(p, 'bio-teste-concorrente')?.trecho).toBe('Transformando VIDAS')
+  })
+
+  it('contradição CTA×objetivo cita uma frase que empurra pro link', () => {
+    const p = { ...perfilBom(), bio: 'Nutrição esportiva\nGaranta sua vaga, clique no link 👇' }
+    const trecho = acharViolada(p, 'link-contradicao-direct')?.trecho?.toLowerCase()
+    expect(['garanta sua vaga', 'clique no link']).toContain(trecho)
+  })
+
+  it('bio estourada mostra exatamente o que o Instagram corta', () => {
+    const p = { ...perfilBom(), bio: 'a'.repeat(150) + 'FICA DE FORA' }
+    expect(acharViolada(p, 'bio-150-caracteres')?.trecho).toBe('…FICA DE FORA')
+  })
+
+  it('nome só próprio cita o próprio nome', () => {
+    const p = { ...perfilBom(), nome: 'Ana Ribeiro' }
+    expect(acharViolada(p, 'nome-so-nome-proprio')?.trecho).toBe('Ana Ribeiro')
+  })
+
+  it('destaque comprido cita só os nomes que estouram', () => {
+    const p = {
+      ...perfilBom(),
+      destaques: [
+        { nome: 'Quem sou' },
+        { nome: 'Como funciona o método' },
+        { nome: 'Provas' },
+        { nome: 'Planos' },
+      ],
+    }
+    const trecho = acharViolada(p, 'destaques-nome-comprido')?.trecho
+    expect(trecho).toContain('Como funciona o método')
+    expect(trecho).not.toContain('Quem sou')
+  })
+
+  it('regra sem evidência devolve trecho null, não quebra', () => {
+    const p = { ...perfilBom(), bio: '' }
+    expect(acharViolada(p, 'bio-vazia')?.trecho).toBeNull()
+  })
+})
+
+describe('regras com números da captura', () => {
+  it('menos de 9 posts dispara e cita a contagem', () => {
+    const p: Perfil = { ...perfilBom(), totalPosts: 4 }
+    const v = avaliar(p).violadas.find((r) => r.id === 'grid-pouco-conteudo')
+    expect(v).toBeDefined()
+    expect(v?.trecho).toBe('4 posts publicados')
+  })
+
+  it('sem o número (entrada manual), a regra não dispara', () => {
+    const ids = avaliar(perfilBom()).violadas.map((r) => r.id)
+    expect(ids).not.toContain('grid-pouco-conteudo')
+  })
+})
+
 describe('progresso da sessão', () => {
   it('perfil vazio começa longe do fim; perfil pronto chega em 100%', () => {
     const vazio = progresso(perfilVazio())
