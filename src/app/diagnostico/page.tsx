@@ -100,6 +100,22 @@ export default function Diagnostico() {
      Instagram, que expiram, então não vale persistir */
   const [fotoCapturada, setFotoCapturada] = useState<string | null>(null)
   const [miniaturas, setMiniaturas] = useState<string[]>([])
+  const [conferindo, setConferindo] = useState(false)
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const [config, setConfig] = useState<any>(null)
+
+  /** pergunta ao próprio app o que está faltando na configuração da captura */
+  async function verificarConfig() {
+    setConferindo(true)
+    try {
+      const r = await fetch('/api/token')
+      setConfig(await r.json())
+    } catch {
+      setConfig({ ok: false, diagnostico: 'Não consegui falar com o servidor do app.' })
+    } finally {
+      setConferindo(false)
+    }
+  }
 
   useEffect(() => {
     try {
@@ -363,6 +379,43 @@ export default function Diagnostico() {
               >
                 <p className="text-body-sm font-medium text-ink">{captura.mensagem}</p>
                 {captura.saida && <p className="mt-0.5 text-caption text-mute">{captura.saida}</p>}
+                {!captura.ok && (
+                  <button
+                    onClick={verificarConfig}
+                    className="mt-1.5 text-caption font-medium text-emerald-deep underline-offset-2 hover:underline"
+                  >
+                    {conferindo ? 'Conferindo…' : 'Conferir a configuração →'}
+                  </button>
+                )}
+              </div>
+            )}
+
+            {config && (
+              <div className="mt-2 rounded-md border border-hairline bg-elevated/50 px-3 py-2.5">
+                <p className="text-label-md text-ink">
+                  {config.ok ? '✅ Configuração completa' : '🔎 O que está faltando'}
+                </p>
+                <p className="mt-1 text-caption text-mute">{config.diagnostico}</p>
+                {config.necessarias && (
+                  <ul className="mt-2 space-y-0.5">
+                    {config.necessarias.map((p: string) => {
+                      const tem = config.concedidas?.includes(p)
+                      return (
+                        <li key={p} className="flex items-center gap-1.5 font-mono text-caption">
+                          <span className={tem ? 'text-success-deep' : 'text-danger-deep'}>
+                            {tem ? '✓' : '✕'}
+                          </span>
+                          <span className={tem ? 'text-mute' : 'text-ink'}>{p}</span>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
+                {config.contaEncontrada && (
+                  <p className="mt-2 text-caption text-mute">
+                    Conta Instagram encontrada ✓
+                  </p>
+                )}
               </div>
             )}
 

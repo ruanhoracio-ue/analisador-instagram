@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { buscarPerfil, descobrirContaId, ErroCaptura, extrairUsuario } from './instagram'
+import {
+  buscarPerfil,
+  descobrirContaId,
+  ErroCaptura,
+  extrairUsuario,
+  verificarToken,
+} from './instagram'
 
 describe('extrairUsuario', () => {
   it('aceita as formas que a pessoa tem na mão', () => {
@@ -118,6 +124,70 @@ describe('descobrirContaId', () => {
     await expect(
       descobrirContaId('tok', fetchFalso({ error: { code: 190, message: 'expired' } })),
     ).rejects.toMatchObject({ tipo: 'token-invalido' })
+  })
+})
+
+describe('verificarToken', () => {
+  const concedidas = (nomes: string[]) => ({
+    data: nomes.map((permission) => ({ permission, status: 'granted' })),
+  })
+
+  it('aponta exatamente quais permissões faltam', async () => {
+    const estado = await verificarToken(
+      'tok',
+      fetchFalso(concedidas(['pages_show_list', 'business_management'])),
+    )
+    expect(estado.ok).toBe(false)
+    expect(estado.faltando).toEqual(['instagram_basic', 'pages_read_engagement'])
+    expect(estado.diagnostico).toMatch(/Generate Access Token/)
+  })
+
+  it('token sem permissão nenhuma lista as quatro', async () => {
+    const estado = await verificarToken('tok', fetchFalso({ data: [] }))
+    expect(estado.faltando).toHaveLength(4)
+  })
+
+  it('separa permissão recusada de permissão ausente', async () => {
+    const estado = await verificarToken(
+      'tok',
+      fetchFalso({
+        data: [
+          { permission: 'instagram_basic', status: 'granted' },
+          { permission: 'business_management', status: 'declined' },
+        ],
+      }),
+    )
+    expect(estado.concedidas).toContain('instagram_basic')
+    expect(estado.recusadas).toContain('business_management')
+    expect(estado.faltando).toContain('business_management')
+  })
+
+  it('com tudo concedido, segue e confirma a conta', async () => {
+    let chamada = 0
+    const fetchDuplo = (async () => {
+      chamada += 1
+      const corpo =
+        chamada === 1
+          ? concedidas([
+              'instagram_basic',
+              'pages_show_list',
+              'pages_read_engagement',
+              'business_management',
+            ])
+          : { data: [{ instagram_business_account: { id: '178414' } }] }
+      return new Response(JSON.stringify(corpo), { status: 200 })
+    }) as unknown as typeof fetch
+
+    const estado = await verificarToken('tok', fetchDuplo)
+    expect(estado.ok).toBe(true)
+    expect(estado.contaEncontrada).toBe('178414')
+  })
+
+  it('nunca devolve o token nem pedaço dele', async () => {
+    const segredo = 'EAAsegredo123'
+    const estado = await verificarToken(segredo, fetchFalso({ data: [] }))
+    expect(JSON.stringify(estado)).not.toContain(segredo)
+    expect(JSON.stringify(estado)).not.toContain('EAA')
   })
 })
 

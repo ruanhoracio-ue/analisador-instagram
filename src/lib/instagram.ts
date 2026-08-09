@@ -65,6 +65,103 @@ export function extrairUsuario(entrada: string): string | null {
 
 const VERSAO = 'v21.0'
 
+/** permissões que o Business Discovery exige do token */
+export const PERMISSOES_NECESSARIAS = [
+  'instagram_basic',
+  'pages_show_list',
+  'pages_read_engagement',
+  'business_management',
+] as const
+
+export interface EstadoDoToken {
+  ok: boolean
+  concedidas: string[]
+  faltando: string[]
+  recusadas: string[]
+  /** o @ da conta Instagram alcançada, quando as permissões já bastam */
+  contaEncontrada: string | null
+  diagnostico: string
+}
+
+/**
+ * Diz o que o token realmente carrega — sem nunca devolver o token.
+ *
+ * Existe porque a variável de ambiente é opaca depois de salva: quem
+ * configura não consegue reler o valor pra conferir, e o erro que chega
+ * ("sem permissão") não distingue token errado de permissão faltando.
+ */
+export async function verificarToken(
+  token: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<EstadoDoToken> {
+  const url =
+    `https://graph.facebook.com/${VERSAO}/me/permissions` +
+    `?access_token=${encodeURIComponent(token)}`
+
+  let dados: {
+    data?: { permission?: string; status?: string }[]
+    error?: NonNullable<RespostaBD['error']>
+  }
+  try {
+    const resposta = await fetchImpl(url, { headers: { accept: 'application/json' } })
+    dados = await resposta.json()
+  } catch {
+    return {
+      ok: false,
+      concedidas: [],
+      faltando: [...PERMISSOES_NECESSARIAS],
+      recusadas: [],
+      contaEncontrada: null,
+      diagnostico: 'Não consegui falar com o Facebook para conferir o token.',
+    }
+  }
+
+  if (dados.error) {
+    const erro = traduzirErro(dados.error, '')
+    return {
+      ok: false,
+      concedidas: [],
+      faltando: [...PERMISSOES_NECESSARIAS],
+      recusadas: [],
+      contaEncontrada: null,
+      diagnostico: `${erro.message}. ${erro.saida}`,
+    }
+  }
+
+  const itens = dados.data ?? []
+  const concedidas = itens.filter((p) => p.status === 'granted').map((p) => p.permission ?? '')
+  const recusadas = itens.filter((p) => p.status === 'declined').map((p) => p.permission ?? '')
+  const faltando = PERMISSOES_NECESSARIAS.filter((p) => !concedidas.includes(p))
+
+  if (faltando.length > 0) {
+    return {
+      ok: false,
+      concedidas,
+      faltando,
+      recusadas,
+      contaEncontrada: null,
+      diagnostico:
+        'O token está válido, mas foi gerado sem todas as permissões. No Graph API Explorer, marque as permissões que faltam e clique em Generate Access Token DE NOVO — o token só recebe as permissões no momento em que é gerado.',
+    }
+  }
+
+  // permissões ok: falta saber se há conta Instagram profissional alcançável
+  try {
+    const id = await descobrirContaId(token, fetchImpl)
+    return {
+      ok: true,
+      concedidas,
+      faltando: [],
+      recusadas,
+      contaEncontrada: id,
+      diagnostico: 'Tudo certo: token com as permissões e conta Instagram encontrada.',
+    }
+  } catch (e) {
+    const msg = e instanceof ErroCaptura ? `${e.message}. ${e.saida}` : 'erro ao procurar a conta'
+    return { ok: false, concedidas, faltando: [], recusadas, contaEncontrada: null, diagnostico: msg }
+  }
+}
+
 /**
  * Descobre o ID da conta Instagram profissional a partir do próprio token.
  *
