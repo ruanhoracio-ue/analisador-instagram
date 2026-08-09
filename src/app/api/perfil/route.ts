@@ -5,7 +5,13 @@
  * Devolve o perfil normalizado ou um erro com uma saída acionável.
  */
 import { NextResponse } from 'next/server'
-import { buscarPerfil, descobrirContaId, ErroCaptura, extrairUsuario } from '@/lib/instagram'
+import {
+  buscarPerfil,
+  descobrirContaId,
+  ErroCaptura,
+  extrairUsuario,
+  verificarToken,
+} from '@/lib/instagram'
 
 export const runtime = 'nodejs'
 /* a captura consulta o Instagram a cada chamada — nada de cache de rota */
@@ -60,15 +66,32 @@ export async function GET(request: Request) {
     })
   } catch (e) {
     if (e instanceof ErroCaptura) {
+      /* A Meta devolve o mesmo código 10 em duas situações muito diferentes:
+         token sem escopos, e alvo que não é conta Comercial/Criador. Como o
+         token é conferível, perguntamos a ele: se está íntegro, o problema é
+         o perfil consultado — e mandar a pessoa refazer o token seria uma
+         caçada a um erro que não existe. */
+      let erro = e
+      if (e.tipo === 'permissao-faltando') {
+        const estado = await verificarToken(token).catch(() => null)
+        if (estado?.ok) {
+          erro = new ErroCaptura(
+            'nao-profissional',
+            `não deu pra ler @${usuario} pela API oficial`,
+            'A API só alcança perfis Comercial ou Criador de Conteúdo — perfis pessoais e privados ficam de fora. Preencha os campos na mão que a análise sai igual.',
+          )
+        }
+      }
       const status =
-        e.tipo === 'nao-encontrado' || e.tipo === 'nao-profissional'
+        erro.tipo === 'nao-encontrado' || erro.tipo === 'nao-profissional'
           ? 404
-          : e.tipo === 'limite-excedido'
+          : erro.tipo === 'limite-excedido'
             ? 429
-            : e.tipo === 'token-invalido'
-              ? 502
-              : 502
-      return NextResponse.json({ tipo: e.tipo, mensagem: e.message, saida: e.saida }, { status })
+            : 502
+      return NextResponse.json(
+        { tipo: erro.tipo, mensagem: erro.message, saida: erro.saida },
+        { status },
+      )
     }
     return NextResponse.json(
       {
