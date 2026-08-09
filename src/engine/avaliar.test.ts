@@ -117,6 +117,49 @@ describe('regras com números da captura', () => {
   it('sem o número (entrada manual), a regra não dispara', () => {
     const ids = avaliar(perfilBom()).violadas.map((r) => r.id)
     expect(ids).not.toContain('grid-pouco-conteudo')
+    expect(ids).not.toContain('grid-perfil-parado')
+    expect(ids).not.toContain('legendas-sem-convite-direct')
+  })
+
+  it('perfil parado há mais de 30 dias dispara e cita a recência', () => {
+    const p: Perfil = { ...perfilBom(), diasDesdeUltimoPost: 47 }
+    const v = avaliar(p).violadas.find((r) => r.id === 'grid-perfil-parado')
+    expect(v?.trecho).toBe('último post há 47 dias')
+  })
+
+  it('postou este mês = não está parado', () => {
+    const p: Perfil = { ...perfilBom(), diasDesdeUltimoPost: 12 }
+    expect(avaliar(p).violadas.map((r) => r.id)).not.toContain('grid-perfil-parado')
+  })
+
+  it('objetivo direct + nenhuma legenda convidando = aviso com contagem', () => {
+    const p: Perfil = {
+      ...perfilBom(),
+      legendasRecentes: ['Receita de hoje!', 'Treino de pernas 💪', 'Bom dia'],
+    }
+    const v = avaliar(p).violadas.find((r) => r.id === 'legendas-sem-convite-direct')
+    expect(v?.trecho).toBe('3 legendas recentes lidas — nenhuma convida pro direct')
+  })
+
+  it('uma legenda com convite já resolve', () => {
+    const p: Perfil = {
+      ...perfilBom(),
+      legendasRecentes: ['Receita de hoje!', 'Dúvida? Me chama no direct 👇'],
+    }
+    expect(avaliar(p).violadas.map((r) => r.id)).not.toContain('legendas-sem-convite-direct')
+  })
+
+  it('objetivo link cobra o empurrão nas legendas', () => {
+    const p: Perfil = {
+      ...perfilBom(),
+      objetivo: 'link',
+      link: 'https://loja.exemplo.com',
+      bio: 'Roupas de treino\nCompre no link 👇',
+      ctaBotao: '',
+      legendasRecentes: ['Lançamento da semana', 'Look do dia'],
+    }
+    const ids = avaliar(p).violadas.map((r) => r.id)
+    expect(ids).toContain('legendas-sem-convite-link')
   })
 })
 

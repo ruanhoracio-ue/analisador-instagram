@@ -135,6 +135,47 @@ export const REGRAS: Regra[] = [
     exemplo: '"Tabela de preços e horários no link 👇"',
   },
 
+  {
+    /* legendas vêm da captura; sem elas a regra fica quieta */
+    id: 'legendas-sem-convite-direct',
+    bloco: 'link',
+    severidade: 'importante',
+    aplicaObjetivos: ['direct'],
+    aplicaTipos: 'todos',
+    kind: 'auto',
+    condicao: (p) =>
+      (p.legendasRecentes?.length ?? 0) > 0 &&
+      !p.legendasRecentes!.some((l) => convidaParaDirect(l)),
+    evidencia: (p) =>
+      p.legendasRecentes ? `${p.legendasRecentes.length} legendas recentes lidas — nenhuma convida pro direct` : null,
+    mensagem: 'As legendas dos últimos posts não convidam pra mensagem.',
+    porque:
+      'O post é onde a conversa nasce — se nem a legenda chama pro direct, o perfil depende de a pessoa ter a iniciativa sozinha.',
+    comoResolver:
+      'Feche as legendas com o convite: uma pergunta + "me chama no direct". Não precisa ser todas — mas alguma precisa.',
+    exemplo: '"…quer saber se serve pro seu caso? Me chama no direct 👇"',
+    elogio: 'As legendas recentes puxam pro direct — o perfil e o conteúdo pedem a mesma ação.',
+  },
+  {
+    id: 'legendas-sem-convite-link',
+    bloco: 'link',
+    severidade: 'importante',
+    aplicaObjetivos: ['link'],
+    aplicaTipos: 'todos',
+    kind: 'auto',
+    condicao: (p) =>
+      (p.legendasRecentes?.length ?? 0) > 0 && !p.legendasRecentes!.some((l) => apontaParaLink(l)),
+    evidencia: (p) =>
+      p.legendasRecentes ? `${p.legendasRecentes.length} legendas recentes lidas — nenhuma aponta pro link` : null,
+    mensagem: 'As legendas dos últimos posts não mandam ninguém pro link.',
+    porque:
+      'A venda no link começa no post: quem termina de ler precisa ouvir onde comprar — senão curte e segue rolando.',
+    comoResolver:
+      'Termine as legendas de oferta apontando o caminho: "link na bio" + o que a pessoa encontra lá.',
+    exemplo: '"…disponível nos tamanhos P ao GG — link na bio 👇"',
+    elogio: 'As legendas recentes apontam pro link — o conteúdo empurra pra onde a venda acontece.',
+  },
+
   /* ── BIO ──────────────────────────────────────────────────────────────── */
   {
     id: 'bio-vazia',
@@ -502,6 +543,23 @@ export const REGRAS: Regra[] = [
       'As 9 primeiras são o cartão de visita — quem bate o olho decide se fica antes de ler qualquer legenda.',
     comoResolver:
       'Mostre o print das 9 pra alguém de fora e pergunte "o que essa pessoa faz?". Se errar, falta repetir o tema.',
+  },
+  {
+    /* recência vem da captura; na entrada manual não dispara */
+    id: 'grid-perfil-parado',
+    bloco: 'grid',
+    severidade: 'importante',
+    aplicaObjetivos: 'todos',
+    aplicaTipos: 'todos',
+    kind: 'auto',
+    condicao: (p) => p.diasDesdeUltimoPost !== undefined && p.diasDesdeUltimoPost > 30,
+    evidencia: (p) =>
+      p.diasDesdeUltimoPost !== undefined ? `último post há ${p.diasDesdeUltimoPost} dias` : null,
+    mensagem: 'O perfil está parado — mais de um mês sem publicar.',
+    porque:
+      'Quem chega olha a data do último post antes de decidir: perfil parado lê como negócio que talvez nem exista mais.',
+    comoResolver:
+      'Antes de otimizar qualquer campo, volte a publicar — um post agora vale mais que a bio perfeita num perfil mudo.',
   },
   {
     /* usa os números da captura automática — na entrada manual (sem

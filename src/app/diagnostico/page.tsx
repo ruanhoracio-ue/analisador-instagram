@@ -43,6 +43,8 @@ interface Dados {
   /** vindos da captura automática; ausentes na entrada manual */
   seguidores?: number
   totalPosts?: number
+  legendasRecentes?: string[]
+  diasDesdeUltimoPost?: number
 }
 
 const CHAVE = 'diagnostico:v1'
@@ -164,6 +166,17 @@ export default function Diagnostico() {
         tem9Posts: (corpo.posts ?? 0) >= 9,
         seguidores: corpo.seguidores ?? undefined,
         totalPosts: corpo.posts ?? undefined,
+        legendasRecentes: (corpo.postsRecentes ?? [])
+          .map((post: { legenda?: string }) => post.legenda ?? '')
+          .filter(Boolean),
+        diasDesdeUltimoPost: (() => {
+          const datas = (corpo.postsRecentes ?? [])
+            .map((post: { data?: string | null }) => post.data)
+            .filter(Boolean) as string[]
+          if (!datas.length) return undefined
+          const ultima = Math.max(...datas.map((d) => new Date(d).getTime()))
+          return Math.max(0, Math.floor((Date.now() - ultima) / 86_400_000))
+        })(),
       }))
       if (corpo.foto) setFotoCapturada(corpo.foto)
       if (corpo.miniaturas?.length) setMiniaturas(corpo.miniaturas)
@@ -203,6 +216,8 @@ export default function Diagnostico() {
         : [{}, {}, {}],
       seguidores: dados.seguidores,
       totalPosts: dados.totalPosts,
+      legendasRecentes: dados.legendasRecentes,
+      diasDesdeUltimoPost: dados.diasDesdeUltimoPost,
     }),
     [dados],
   )
@@ -287,6 +302,20 @@ export default function Diagnostico() {
                   limpar
                 </button>
               </div>
+              {(dados.seguidores !== undefined || dados.diasDesdeUltimoPost !== undefined) && (
+                <p className="mt-2 text-caption text-mute">
+                  {dados.seguidores !== undefined &&
+                    `${dados.seguidores.toLocaleString('pt-BR')} seguidores`}
+                  {dados.seguidores !== undefined && dados.totalPosts !== undefined && ' · '}
+                  {dados.totalPosts !== undefined && `${dados.totalPosts} posts`}
+                  {dados.diasDesdeUltimoPost !== undefined &&
+                    ` · último post ${
+                      dados.diasDesdeUltimoPost === 0
+                        ? 'hoje'
+                        : `há ${dados.diasDesdeUltimoPost} dia${dados.diasDesdeUltimoPost > 1 ? 's' : ''}`
+                    }`}
+                </p>
+              )}
               <div className="mt-3 flex justify-center">
                 <PreviewInstagram
                   foto={fotoCapturada ?? undefined}

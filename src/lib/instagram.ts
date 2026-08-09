@@ -9,6 +9,14 @@
  * O token nunca sai do servidor.
  */
 
+export interface PostRecente {
+  legenda: string
+  curtidas: number | null
+  comentarios: number | null
+  /** timestamp ISO do Instagram */
+  data: string | null
+}
+
 export interface PerfilCapturado {
   usuario: string
   nome: string
@@ -19,6 +27,8 @@ export interface PerfilCapturado {
   posts: number | null
   /** capas das primeiras miniaturas, na ordem do grid */
   miniaturas: string[]
+  /** legendas, datas e engajamento dos posts recentes */
+  postsRecentes: PostRecente[]
 }
 
 /** por que a captura falhou — cada caso tem uma saída diferente na tela */
@@ -222,7 +232,17 @@ interface RespostaBD {
     profile_picture_url?: string
     followers_count?: number
     media_count?: number
-    media?: { data?: { media_url?: string; thumbnail_url?: string; media_type?: string }[] }
+    media?: {
+      data?: {
+        media_url?: string
+        thumbnail_url?: string
+        media_type?: string
+        caption?: string
+        like_count?: number
+        comments_count?: number
+        timestamp?: string
+      }[]
+    }
   }
   error?: { message?: string; code?: number; error_subcode?: number; type?: string }
 }
@@ -245,7 +265,7 @@ export async function buscarPerfil(
     'profile_picture_url',
     'followers_count',
     'media_count',
-    'media.limit(9){media_url,thumbnail_url,media_type}',
+    'media.limit(9){media_url,thumbnail_url,media_type,caption,like_count,comments_count,timestamp}',
   ].join(',')
 
   const url =
@@ -279,9 +299,17 @@ export async function buscarPerfil(
     )
   }
 
-  const miniaturas = (bd.media?.data ?? [])
+  const midias = bd.media?.data ?? []
+  const miniaturas = midias
     .map((m) => (m.media_type === 'VIDEO' ? m.thumbnail_url : m.media_url))
     .filter((u): u is string => Boolean(u))
+
+  const postsRecentes: PostRecente[] = midias.map((m) => ({
+    legenda: m.caption ?? '',
+    curtidas: m.like_count ?? null,
+    comentarios: m.comments_count ?? null,
+    data: m.timestamp ?? null,
+  }))
 
   return {
     usuario: bd.username,
@@ -292,6 +320,7 @@ export async function buscarPerfil(
     seguidores: bd.followers_count ?? null,
     posts: bd.media_count ?? null,
     miniaturas,
+    postsRecentes,
   }
 }
 

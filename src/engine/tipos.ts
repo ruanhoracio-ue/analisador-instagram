@@ -59,6 +59,10 @@ export interface Perfil {
   /** números que só a captura automática traz — ausentes na entrada manual */
   seguidores?: number
   totalPosts?: number
+  /** legendas dos posts recentes (captura) — deixam as regras lerem o conteúdo */
+  legendasRecentes?: string[]
+  /** dias desde o último post (captura) — calculado fora do motor, que é puro */
+  diasDesdeUltimoPost?: number
 }
 
 export interface Regra {
