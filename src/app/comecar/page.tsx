@@ -1,17 +1,13 @@
 import Link from 'next/link'
 import { Logo } from '@/components/Logo'
-import { ThemeToggle } from '@/components/ThemeToggle'
 
 /** A escolha — analisar o que existe ou construir o que falta. */
 export default function Comecar() {
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-16">
-      <div className="flex items-center justify-between">
-        <Link href="/" className="transition-opacity hover:opacity-70" title="Voltar ao início">
-          <Logo className="h-5" />
-        </Link>
-        <ThemeToggle />
-      </div>
+      <Link href="/" className="w-fit transition-opacity hover:opacity-70" title="Voltar ao início">
+        <Logo className="h-5" />
+      </Link>
 
       <h1 className="mt-8 text-heading-lg">Por onde você quer começar?</h1>
       <p className="mt-2 max-w-xl text-body-lg text-mute">

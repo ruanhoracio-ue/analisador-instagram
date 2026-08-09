@@ -7,7 +7,6 @@ import { useMemo } from 'react'
 import Link from 'next/link'
 import { Logo } from '@/components/Logo'
 import { avaliar, progresso } from '@/engine/avaliar'
-import { ThemeToggle } from '@/components/ThemeToggle'
 import { useEstado } from '@/lib/estado'
 import { Abertura } from '@/components/Abertura'
 import { Editor } from '@/components/Editor'
@@ -79,14 +78,11 @@ export default function Pagina() {
               </button>
             )
           })}
-          <div className="ml-auto flex shrink-0 items-center gap-3 pl-3">
-            {estado.objetivo && (
-              <span className="hidden whitespace-nowrap text-caption tabular-nums text-mute sm:block">
-                {ritmo.resolvidas} de {ritmo.total} decisões
-              </span>
-            )}
-            <ThemeToggle />
-          </div>
+          {estado.objetivo && (
+            <span className="ml-auto hidden shrink-0 whitespace-nowrap pl-3 text-caption tabular-nums text-mute sm:block">
+              {ritmo.resolvidas} de {ritmo.total} decisões
+            </span>
+          )}
         </nav>
 
         {/* ritmo da sessão — quanto falta, não quão bom está. A qualidade

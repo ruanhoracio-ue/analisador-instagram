@@ -1,14 +1,12 @@
 import Link from 'next/link'
 import { Logo } from '@/components/Logo'
-import { ThemeToggle } from '@/components/ThemeToggle'
 
 /** Primeira dobra — explica o que o app faz antes de qualquer escolha. */
 export default function Landing() {
   return (
     <main className="mx-auto flex min-h-screen max-w-[1000px] flex-col px-6">
-      <header className="flex items-center justify-between py-5">
+      <header className="py-5">
         <Logo className="h-5" />
-        <ThemeToggle />
       </header>
 
       <section className="flex flex-1 flex-col justify-center pb-24">

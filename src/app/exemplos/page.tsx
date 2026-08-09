@@ -9,7 +9,6 @@ import Link from 'next/link'
 import { EXEMPLOS } from '@/data/exemplos'
 import { OBJETIVOS, TIPOS } from '@/engine/tipos'
 import { Logo } from '@/components/Logo'
-import { ThemeToggle } from '@/components/ThemeToggle'
 import { PreviewInstagram } from '@/components/PreviewInstagram'
 
 export default function Exemplos() {
@@ -20,11 +19,10 @@ export default function Exemplos() {
 
   return (
     <main className="mx-auto max-w-[1100px] px-6 pb-24">
-      <header className="sticky top-0 z-40 -mx-6 mb-8 flex items-center justify-between border-b border-hairline bg-canvas/95 px-6 py-3 backdrop-blur">
-        <Link href="/" className="shrink-0 transition-opacity hover:opacity-70" title="Voltar ao início">
+      <header className="sticky top-0 z-40 -mx-6 mb-8 border-b border-hairline bg-canvas/95 px-6 py-3 backdrop-blur">
+        <Link href="/" className="inline-block transition-opacity hover:opacity-70" title="Voltar ao início">
           <Logo className="h-5" />
         </Link>
-        <ThemeToggle />
       </header>
 
       <h1 className="text-heading-lg">Exemplos comentados</h1>
@@ -41,7 +39,7 @@ export default function Exemplos() {
             onClick={() => setI(idx)}
             className={`shrink-0 rounded-full border px-4 py-1.5 text-label-md transition-colors ${
               i === idx
-                ? 'border-emerald-500 bg-emerald-50 text-emerald-deep dark:bg-emerald-soft'
+                ? 'border-emerald-500 bg-emerald-50 text-emerald-deep'
                 : 'border-hairline bg-surface text-mute hover:border-hairline-strong hover:text-ink'
             }`}
           >

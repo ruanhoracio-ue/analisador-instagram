@@ -15,7 +15,6 @@ import type { Objetivo, Perfil, Tipo } from '@/engine/tipos'
 import { OBJETIVOS, TIPOS } from '@/engine/tipos'
 import { estadoInicial } from '@/lib/estado'
 import { Logo } from '@/components/Logo'
-import { ThemeToggle } from '@/components/ThemeToggle'
 import { Contador, PreviewInstagram } from '@/components/PreviewInstagram'
 import {
   ListaDeChecks,
@@ -254,17 +253,14 @@ export default function Diagnostico() {
         <Link href="/" className="shrink-0 transition-opacity hover:opacity-70" title="Voltar ao início">
           <Logo className="h-5" />
         </Link>
-        <div className="flex shrink-0 items-center gap-2">
-          {comecou && (
-            <button
-              onClick={() => window.print()}
-              className="rounded-md border border-hairline bg-surface px-3 py-1.5 text-label-md text-ink transition-colors hover:border-hairline-strong"
-            >
-              Salvar PDF
-            </button>
-          )}
-          <ThemeToggle />
-        </div>
+        {comecou && (
+          <button
+            onClick={() => window.print()}
+            className="shrink-0 rounded-md border border-hairline bg-surface px-3 py-1.5 text-label-md text-ink transition-colors hover:border-hairline-strong"
+          >
+            Salvar PDF
+          </button>
+        )}
       </header>
 
       {/* cabeçalho que só existe no papel — identifica o relatório impresso */}
