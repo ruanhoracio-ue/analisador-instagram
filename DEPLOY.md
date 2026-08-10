@@ -1,3 +1,26 @@
+# Configurar a análise com IA (OpenAI)
+
+Liga a "leitura de estrategista": a IA lê o perfil diagnosticado e devolve uma
+análise específica do nicho — complementando as regras, nunca escrevendo o
+perfil pela pessoa.
+
+1. Crie uma chave em <https://platform.openai.com/api-keys> — de preferência
+   num **Project** próprio ("Instagram Extremo"), para ver o gasto separado e
+   poder revogar sem afetar outros apps.
+2. Na Vercel: **Settings → Environment Variables**:
+
+   | Nome | Valor |
+   | :--- | :--- |
+   | `OPENAI_API_KEY` | `sk-proj-…` |
+   | `OPENAI_MODEL` *(opcional)* | modelo a usar — padrão `gpt-4o-mini` |
+
+3. **Redeploy**.
+
+Custo: com `gpt-4o-mini`, cada análise sai por ~R$0,01. Sem a chave, o app
+continua inteiro — o botão de IA responde "não configurado" e as regras seguem.
+
+---
+
 # Configurar a captura automática de perfil
 
 O app funciona **sem nenhuma configuração** — a análise manual (colar os campos)
