@@ -572,6 +572,23 @@ export default function Diagnostico() {
             </div>
           ) : (
             <>
+              <SecaoAnaliseIA
+                montarEntrada={() => ({
+                  objetivo: OBJETIVOS.find((o) => o.id === dados.objetivo)?.rotulo ?? dados.objetivo,
+                  tipo: TIPOS.find((t) => t.id === dados.tipo)?.rotulo ?? dados.tipo,
+                  usuario: dados.usuario.replace(/^@/, ''),
+                  nome: dados.nome,
+                  bio: dados.bio,
+                  link: dados.link,
+                  ctaBotao: dados.ctaBotao,
+                  seguidores: dados.seguidores,
+                  totalPosts: dados.totalPosts,
+                  diasDesdeUltimoPost: dados.diasDesdeUltimoPost,
+                  legendasRecentes: dados.legendasRecentes,
+                  jaApontado: avaliacao.violadas.map((r) => r.mensagem),
+                })}
+              />
+
               <ProximoPasso regra={avaliacao.proximoPasso} />
               <NotasPorBloco avaliacao={avaliacao} pendentes={pendentes} />
               <PontosFortes acertos={avaliacao.acertos} />
@@ -604,23 +621,6 @@ export default function Diagnostico() {
                   />
                 </div>
               </div>
-
-              <SecaoAnaliseIA
-                montarEntrada={() => ({
-                  objetivo: OBJETIVOS.find((o) => o.id === dados.objetivo)?.rotulo ?? dados.objetivo,
-                  tipo: TIPOS.find((t) => t.id === dados.tipo)?.rotulo ?? dados.tipo,
-                  usuario: dados.usuario.replace(/^@/, ''),
-                  nome: dados.nome,
-                  bio: dados.bio,
-                  link: dados.link,
-                  ctaBotao: dados.ctaBotao,
-                  seguidores: dados.seguidores,
-                  totalPosts: dados.totalPosts,
-                  diasDesdeUltimoPost: dados.diasDesdeUltimoPost,
-                  legendasRecentes: dados.legendasRecentes,
-                  jaApontado: avaliacao.violadas.map((r) => r.mensagem),
-                })}
-              />
 
               <div className="ds-card no-print flex items-center justify-between gap-4 p-4">
                 <p className="text-body-sm text-mute">
