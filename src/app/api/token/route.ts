@@ -23,7 +23,7 @@ export async function GET() {
         configurado: false,
         necessarias: PERMISSOES_NECESSARIAS,
         diagnostico:
-          'A variável IG_ACCESS_TOKEN não chegou ao app. Confira se ela existe na Vercel para o ambiente Production e se houve um Redeploy depois de salvá-la.',
+          'A variável IG_ACCESS_TOKEN não chegou ao app. Confira se ela existe no painel da hospedagem (Variables and Secrets) e faça um novo deploy depois de salvá-la.',
       },
       { status: 200, headers: { 'cache-control': 'no-store' } },
     )

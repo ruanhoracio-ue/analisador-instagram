@@ -1,3 +1,37 @@
+# Publicar na Cloudflare (Workers)
+
+O app roda inteiro no Cloudflare Workers — páginas e rotas de API — via o
+adaptador oficial [OpenNext](https://opennext.js.org/cloudflare). A configuração
+já está no repositório (`wrangler.jsonc`, `open-next.config.ts`).
+
+## Publicação automática a cada push (recomendado)
+
+1. Painel da Cloudflare → **Compute (Workers)** → **Create** →
+   **Import a repository** → conecte o GitHub e escolha `analisador-instagram`.
+2. A Cloudflare detecta o Next.js sozinha. Se pedir os comandos:
+   - Build command: `npx opennextjs-cloudflare build`
+   - Deploy command: `npx wrangler deploy`
+3. Depois do primeiro deploy, abra o Worker → **Settings → Variables and
+   Secrets** e adicione como **Secret**:
+   - `IG_ACCESS_TOKEN` (captura automática — seção abaixo)
+   - `OPENAI_API_KEY` (análise com IA — seção abaixo)
+   - `OPENAI_MODEL` *(opcional)*
+4. Faça um novo deploy (**Deployments → Retry/Deploy**) para o app pegar os
+   segredos. Confira na tela de análise com o "Conferir a configuração".
+
+A cada push na branch principal a Cloudflare rebuilda e publica sozinha.
+
+## Publicar da sua máquina (alternativa)
+
+```
+npm run preview   # roda local no runtime real do Workers
+npm run deploy    # builda e publica
+```
+
+*(exige `npx wrangler login` uma vez; segredos via `npx wrangler secret put NOME`)*
+
+---
+
 # Configurar a análise com IA (OpenAI)
 
 Liga a "leitura de estrategista": a IA lê o perfil diagnosticado e devolve uma
@@ -7,14 +41,14 @@ perfil pela pessoa.
 1. Crie uma chave em <https://platform.openai.com/api-keys> — de preferência
    num **Project** próprio ("Instagram Extremo"), para ver o gasto separado e
    poder revogar sem afetar outros apps.
-2. Na Vercel: **Settings → Environment Variables**:
+2. No Worker: **Settings → Variables and Secrets** → **Add** (tipo Secret):
 
    | Nome | Valor |
    | :--- | :--- |
    | `OPENAI_API_KEY` | `sk-proj-…` |
    | `OPENAI_MODEL` *(opcional)* | modelo a usar — padrão `gpt-4o-mini` |
 
-3. **Redeploy**.
+3. Faça um novo deploy.
 
 Custo: com `gpt-4o-mini`, cada análise sai por ~R$0,01. Sem a chave, o app
 continua inteiro — o botão de IA responde "não configurado" e as regras seguem.
@@ -93,15 +127,15 @@ GET https://graph.facebook.com/v21.0/oauth/access_token
 > ("o acesso precisa ser renovado") e a análise manual segue funcionando.
 > Repita este passo para renovar.
 
-### 6. Configure na Vercel
-No painel da Vercel: **Settings → Environment Variables**, adicione **uma** variável:
+### 6. Configure na hospedagem
+No Worker (Cloudflare): **Settings → Variables and Secrets**, adicione **um**
+segredo:
 
 | Nome | Valor |
 | :--- | :--- |
 | `IG_ACCESS_TOKEN` | o token longo do passo 5 |
 
-Marque Production, Preview e Development. Depois clique em **Redeploy** para o
-app pegar a variável.
+Depois faça um novo deploy para o app pegar a variável.
 
 *(Opcional: `IG_BUSINESS_ACCOUNT_ID` para fixar uma conta específica, caso o
 acesso enxergue várias.)*
@@ -120,7 +154,8 @@ no servidor, lida pela rota `/api/perfil`. Nunca commite o token no Git.
 
 ## Publicar em hospedagem estática
 
-A captura automática exige servidor. Se um dia você preferir hospedagem de
-arquivo estático (Cloudflare Pages, S3), ligue `output: 'export'` no
-`next.config.ts` — o app inteiro continua funcionando, só a captura automática
-sai de cena e fica a análise manual.
+O Cloudflare Workers já roda tudo, incluindo as rotas de API. Mas se um dia
+você preferir hospedagem de arquivo estático puro (S3, GitHub Pages), ligue
+`output: 'export'` no `next.config.ts` — o app inteiro continua funcionando,
+só a captura automática e a análise com IA saem de cena e fica a análise
+manual por regras.

@@ -1,10 +1,12 @@
 import type { NextConfig } from 'next'
 
 /**
- * O app é 100% cliente: todas as rotas saem pré-renderizadas como estáticas.
- * Para publicar em hospedagem de arquivo estático (Cloudflare Pages, S3…),
- * basta ligar `output: 'export'` aqui e servir a pasta `out/`.
- * Verificado: o export gera as 5 rotas e o motor de regras roda normalmente.
+ * Publicado no Cloudflare Workers via @opennextjs/cloudflare (ver
+ * wrangler.jsonc e DEPLOY.md): as páginas saem estáticas e as rotas /api/*
+ * rodam no worker.
+ * Para hospedagem de arquivo estático puro (S3…), basta ligar
+ * `output: 'export'` aqui e servir a pasta `out/` — as rotas /api/* (captura
+ * e IA) saem de cena, o resto segue. Verificado.
  */
 const nextConfig: NextConfig = {}
 

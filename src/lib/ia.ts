@@ -206,7 +206,7 @@ function traduzirErroHttp(status: number): ErroIA {
     return new ErroIA(
       'chave-invalida',
       'a chave da OpenAI foi recusada',
-      'Confira a OPENAI_API_KEY na Vercel — a chave pode ter sido revogada. (Admin: DEPLOY.md)',
+      'Confira a OPENAI_API_KEY no painel da hospedagem — a chave pode ter sido revogada. (Admin: DEPLOY.md)',
     )
   }
   if (status === 429) {
